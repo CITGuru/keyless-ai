@@ -10,7 +10,7 @@ Keyless AI is an innovative personal assistant designed to orchestrate and execu
 
 2. **Multi-Agent Orchestration**: A network of specialized AI agents collaborates to interpret user intents and devise optimal execution strategies.
 
-3. **Smart Account Integration**: Currently supports Safe smart accounts, allowing for secure and flexible transaction management.
+3. **Smart Account Integration**: Currently supports Coinbase smart accounts, allowing for secure and flexible transaction management.
 
 4. **On-Chain Transaction Batching**: Efficiently bundles multiple operations into optimized transaction sets for cost-effective execution.
 
@@ -58,7 +58,7 @@ Compiles proposed actions from various agents into optimized transaction sets, m
 
 ## Future Developments
 
-- Integration with additional smart account providers beyond Safe.
+- Integration with additional smart account providers beyond Coinbase.
 - Expansion of the agent ecosystem to cover more specialized blockchain operations.
 - Enhanced natural language processing for more complex and nuanced user intents.
 - Implementation of AI-driven strategic advice for optimal transaction timing and execution.
