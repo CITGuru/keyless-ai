@@ -25,7 +25,7 @@ Translates user's natural language inputs into structured intents that can be pr
 Coordinates a team of specialized AI agents to collaborate on fulfilling user intents. Uses Autogen Group Chat for inter-agent communication.
 
 ### 3. Smart Account Interface
-Integrates with Safe smart accounts, enabling secure transaction proposal and execution.
+Integrates with Coinbase smart accounts, enabling secure transaction proposal and execution.
 
 ### 4. Transaction Batching and Execution Module
 Compiles proposed actions from various agents into optimized transaction sets, manages user approval, and handles on-chain execution.
