@@ -63,6 +63,7 @@ export default function DynamicMethods({ isDarkMode }) {
         if(!primaryWallet || !isEthereumWallet(primaryWallet)) return;
 
         const signature = await primaryWallet.signMessage("Hello World");
+
         setResult(signature);
     }
 
