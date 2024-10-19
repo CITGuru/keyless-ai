@@ -14,12 +14,14 @@
     "@dynamic-labs/wagmi-connector": "^3.0.0-alpha",
     "@pluralityai/agents": "^0.0.10",
     "@tanstack/react-query": "^5.27.5",
+    "axios": "^1.7.7",
     "next": "14.2.15",
     "pino-pretty": "^11.3.0",
     "react": "^18",
     "react-dom": "^18",
     "viem": "*",
-    "wagmi": "^2.5.7"
+    "wagmi": "^2.5.7",
+    "zod": "^3.23.8"
   },
   "devDependencies": {
     "@types/node": "^20",

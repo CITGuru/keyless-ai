@@ -74,7 +74,7 @@ export const SwapTokenAgent = new Agent({
     Example 4:
     User: Buy 2 ETH worth of WBTC and then send 1 WBTC to 0x123..456
     Call prepareSwapTransaction: "2 ETH to WBTC"
-    Note:  if you see send/transfer, use the transferToSwapAgent function
+    Note: if you see send/transfer, use the transferToSendAgent function
 
     Example of a bad input:
     User: Swap ETH to 1 UNI, then swap UNI to 4 USDC
