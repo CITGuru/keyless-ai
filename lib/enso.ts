@@ -1,7 +1,7 @@
 import axios from "axios"
 
 
-let BASE_URL = "'http://api.enso.finance/api/v1/"
+const BASE_URL = "'http://api.enso.finance/api/v1/"
 
 
 export const EnsoAgent = axios.create({
