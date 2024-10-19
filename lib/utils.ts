@@ -1,5 +1,5 @@
-import { createPublicClient, http, parseUnits, checksumAddress, isAddress } from 'viem'
-import { mainnet, sepolia } from 'viem/chains'
+import { createPublicClient, http, checksumAddress, isAddress } from 'viem'
+import { mainnet } from 'viem/chains'
 import { ERC20_ABI } from './abi'
 
 // Create the viem client (mainnet, for example)
@@ -47,7 +47,7 @@ export class ETHAddress {
   }
 
   async resolve() {
-    let address = this.originalStr
+    const address = this.originalStr
     if (address.endsWith('.eth')) {
       this.hex = await this.resolveENS(address)
       this.ensDomain = address

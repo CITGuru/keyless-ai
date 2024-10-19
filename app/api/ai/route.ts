@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 // Initialize Swarm with your API key
-import { Swarm, Agent, AgentFunction } from "@pluralityai/agents";
+import { Swarm
+ } from "@pluralityai/agents";
 import { z } from "zod";
 
 import { SendTokenAgent } from "../../../agents/SendTokenAgent";
@@ -35,7 +36,7 @@ export async function POST(request: NextRequest) {
 
         const result = response.messages[response.messages.length - 1].content;
 
-        return NextResponse.json({ response });
+        return NextResponse.json({ response, message: result });
     } catch (error) {
         console.error("Error:", error);
         return NextResponse.json(
