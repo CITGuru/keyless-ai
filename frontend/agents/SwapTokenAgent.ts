@@ -1,32 +1,49 @@
 import { Swarm, Agent, AgentFunction } from "@pluralityai/agents";
+import { SendTokenAgent } from ".";
 
 const prepareSwapTransaction: AgentFunction = {
   name: "prepareSwapTransaction",
   func: ({ tokenIn, tokenOut, amount }) => {
-    return {tokenIn, tokenOut, amount }
+    console.log("Testing")
+    return JSON.stringify({ tokenIn, tokenOut, amount })
   },
   descriptor: {
     name: "prepareSwapTransaction",
     description: "Triggers native and erc20 transfer",
     parameters: {
+      tokenIn: {
+        type: "string",
+        required: true,
+        description: "The token to swap from",
+      },
+      tokenOut: {
+        type: "string",
+        required: true,
+        description: "The token to swap to",
+      },
       amount: {
-        type: "number",
-        required: true,
-        description: "The value to send to the receiver address",
-      },
-      receiver: {
         type: "string",
         required: true,
-        description: "The receiver ethereum or ens address",
-      },
-      token: {
-        type: "string",
-        required: true,
-        description: "The native token or ERC20 token to send",
+        description: "The value of token to swap from",
       },
     },
   },
 };
+
+
+const transferToSendAgent: AgentFunction = {
+  name: "transferToSendAgent",
+  func: () => {
+    console.log("Transferring to Send Token Agent");
+    return SendTokenAgent;
+  },
+  descriptor: {
+    name: "transferToSendAgent",
+    description: "Transfer send interactions to Send Token Agent",
+    parameters: {},
+  },
+};
+
 
 // Create a Send Token Agent
 export const SwapTokenAgent = new Agent({
@@ -57,6 +74,7 @@ export const SwapTokenAgent = new Agent({
     Example 4:
     User: Buy 2 ETH worth of WBTC and then send 1 WBTC to 0x123..456
     Call prepareSwapTransaction: "2 ETH to WBTC"
+    Note:  if you see send/transfer, use the transferToSwapAgent function
 
     Example of a bad input:
     User: Swap ETH to 1 UNI, then swap UNI to 4 USDC
@@ -73,5 +91,5 @@ export const SwapTokenAgent = new Agent({
     Only call tools, do not respond with JSON.
   `,
   model: "gpt-4o",
-  functions: [prepareSwapTransaction],
+  functions: [prepareSwapTransaction, transferToSendAgent],
 });

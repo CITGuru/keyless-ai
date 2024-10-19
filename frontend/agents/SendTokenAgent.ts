@@ -1,4 +1,5 @@
 import { Swarm, Agent, AgentFunction } from "@pluralityai/agents";
+import { SwapTokenAgent } from "./index";
 
 const prepareTransaction: AgentFunction = {
   name: "prepareTransaction",
@@ -28,6 +29,20 @@ const prepareTransaction: AgentFunction = {
   },
 };
 
+const transferToSwapAgent: AgentFunction = {
+  name: "transferToSwapAgent",
+  func: () => {
+    console.log("Transferring to Swap Agent");
+    return SwapTokenAgent;
+  },
+  descriptor: {
+    name: "transferToSwapAgent",
+    description: "Transfer swap interactions to Swap Token Agent",
+    parameters: {},
+  },
+};
+
+
 // Create a Send Token Agent
 export const SendTokenAgent = new Agent({
   name: "sendTokenAgent",
@@ -49,6 +64,7 @@ export const SendTokenAgent = new Agent({
         "receiver": "vitalik.eth",
         "token": "ETH"
     }}
+    Note: if you see swap/buy/sell, use the transferToSwapAgent function
     Example 2:
     User: Send 53 UNI to 0xd8dA6BF26964aF9D7eEd9e03E53415D37aA96045
     Call prepareTransaction with args:
@@ -71,5 +87,5 @@ export const SendTokenAgent = new Agent({
     IF a prepared swap transaction will provide the token needed for a transfer, you DO NOT need to call the get_token_balance tool.
   `,
   model: "gpt-4o-mini",
-  functions: [prepareTransaction],
+  functions: [prepareTransaction, transferToSwapAgent],
 });
