@@ -2866,6 +2866,14 @@ export const token_list = [
     },
     {
         "chainId": 1,
+        "address": "0x455e53CBB86018Ac2B8092FdCd39d8444aFFC3F6",
+        "symbol": "POL",
+        "name": "Polygon",
+        "decimals": 18,
+        "logoURI": "ipfs://Qmc2zM8LQ2rsdJEk5ypHjGbVkreo3Q3KNpNTy5z73VTtuK"
+    },
+    {
+        "chainId": 1,
         "address": "0xcFEB09C3c5F0f78aD72166D55f9e6E9A60e96eEC",
         "symbol": "VEMP",
         "name": "vEmpire DDAO",
@@ -49873,9 +49881,33 @@ export const token_list = [
     },
     {
         "chainId": 1,
+        "address": "0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
+        "name": "Ether",
+        "symbol": "ETH",
+        "decimals": 18,
+        "logoURI": "https://assets.coingecko.com/coins/images/34540/thumb/film.jpg?1705338132"
+    },
+    {
+        "chainId": 137,
+        "address": "0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
+        "name": "MATIC",
+        "symbol": "MATIC",
+        "decimals": 18,
+        "logoURI": "https://assets.coingecko.com/coins/images/34540/thumb/film.jpg?1705338132"
+    },
+    {
+        "chainId": 137,
+        "address": "0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
+        "name": "MATIC",
+        "symbol": "POL",
+        "decimals": 18,
+        "logoURI": "https://assets.coingecko.com/coins/images/34540/thumb/film.jpg?1705338132"
+    },
+    {
+        "chainId": 1,
         "address": "0x5e21d1ee5cf0077b314c381720273ae82378d613",
         "name": "The Infinite Garden",
-        "symbol": "ETH",
+        "symbol": "TIG",
         "decimals": 18,
         "logoURI": "https://assets.coingecko.com/coins/images/34540/thumb/film.jpg?1705338132"
     },

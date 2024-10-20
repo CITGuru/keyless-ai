@@ -1,111 +1,101 @@
-// enum IntentType {
-//     SEND = "send",
-//     BUY = "buy",
-//     SELL = "sell",
-// }
+import { parseEther } from "viem";
+import { NATIVE_TOKEN_ADDRESS } from "./constants";
+import { buildTransferERC20, buildTransferNative, ETHAddress } from "./utils";
+import { triggerSwapRoute } from "./enso";
 
-// interface Token {
-//     symbol: string;
-//     address: string;
-// }
+enum IntentType {
+    SEND = "send",
+    SWAP = "swap"
+}
 
-// interface NetworkInfo {
-//     chain_id: number;
-// }
+interface Token {
+    symbol: string;
+    address: string;
+}
 
-// interface ETHAddress {
-//     original_str: string;
-// }
+interface NetworkInfo {
+    chain_id: number;
+}
 
-// interface Transaction {
-//     // Add transaction structure here as needed
-// }
+interface Transaction {
+    // Add transaction structure here as needed
+}
 
-// interface TxParams {
-//     // Add parameters for the transaction as needed
-// }
+interface TxParams {
+    // Add parameters for the transaction as needed
+}
 
-// abstract class IntentBase {
-//     type: IntentType;
-//     summary: string;
+abstract class IntentBase {
+    type: IntentType;
+    summary: string;
 
-//     constructor(type: IntentType, summary: string) {
-//         this.type = type;
-//         this.summary = summary;
-//     }
+    constructor(type: IntentType, summary: string) {
+        this.type = type;
+        this.summary = summary;
+    }
 
-//     abstract buildTransactions(web3: any, network: NetworkInfo, smartWalletAddress: ETHAddress): Promise<Transaction[]>;
-// }
+    abstract buildTransaction(network: NetworkInfo, smartWalletAddress: string): any;
+}
 
-// class SendIntent extends IntentBase {
-//     receiver: string;
-//     token: Token;
-//     amount: number;
+class SendIntent extends IntentBase {
+    receiver: string;
+    token: Token;
+    amount: number;
 
-//     private constructor(token: Token, amount: number, receiver: string) {
-//         super(IntentType.SEND, `Transfer ${amount} ${token.symbol} to ${receiver}`);
-//         this.receiver = receiver;
-//         this.token = token;
-//         this.amount = amount;
-//     }
+    private constructor(token: Token, amount: number, receiver: string) {
+        super(IntentType.SEND, `Transfer ${amount} ${token.symbol} to ${receiver}`);
+        this.receiver = receiver;
+        this.token = token;
+        this.amount = amount;
+    }
 
-//     static create(token: Token, amount: number, receiver: ETHAddress): SendIntent {
-//         return new SendIntent(token, amount, receiver.original_str);
-//     }
+    static create(token: Token, amount: number, receiver: string): SendIntent {
+        return new SendIntent(token, amount, receiver);
+    }
 
-//     async buildTransactions(web3: any, network: NetworkInfo, smartWalletAddress: ETHAddress): Promise<Transaction[]> {
-//         let tx: TxParams;
+    async buildTransaction(network: NetworkInfo, smartWalletAddress: string) {
+        let tx: TxParams;
 
-//         if (this.token.address === 'NATIVE_TOKEN_ADDRESS') {
-//             tx = buildTransferNative(web3, smartWalletAddress, this.receiver, this.amount);
-//         } else {
-//             tx = buildTransferERC20(web3, this.token.address, this.receiver, this.amount, smartWalletAddress);
-//         }
+        let receiverAddress = new ETHAddress(this.receiver)
 
-//         const transactions: Transaction[] = [
-//             {
-//                 // Mock transaction creation logic
-//                 token: this.token,
-//                 amount: this.amount,
-//                 receiver: this.receiver,
-//                 params: tx,
-//             }
-//         ];
+        await receiverAddress.resolve()
 
-//         return transactions;
-//     }
-// }
+        let receiver = receiverAddress.hex || this.receiver
 
-// class BuyIntent extends IntentBase {
-//     fromToken: Token;
-//     toToken: Token;
-//     amount: number;
+        if (this.token.address === NATIVE_TOKEN_ADDRESS) {
+            tx = buildTransferNative(smartWalletAddress, receiver, this.amount);
+        } else {
+            tx = await buildTransferERC20(this.token.address, receiver, this.amount, smartWalletAddress);
+        }
 
-//     private constructor(fromToken: Token, toToken: Token, amount: number) {
-//         super(IntentType.BUY, `Buy ${amount} ${toToken.symbol} with ${fromToken.symbol}`);
-//         this.fromToken = fromToken;
-//         this.toToken = toToken;
-//         this.amount = amount;
-//     }
+        console.log(this.amount, NATIVE_TOKEN_ADDRESS, tx)
+        return tx;
+    }
+}
 
-//     static create(fromToken: Token, toToken: Token, amount: number): BuyIntent {
-//         return new BuyIntent(fromToken, toToken, amount);
-//     }
+class SwapIntent extends IntentBase {
+    fromToken: Token;
+    toToken: Token;
+    amount: number;
 
-//     async buildTransactions(web3: any, network: NetworkInfo, smartWalletAddress: ETHAddress): Promise<Transaction[]> {
-//         // const transactions = await buildSwapTransaction(
-//         //     web3,
-//         //     this.amount,
-//         //     this.fromToken.address,
-//         //     this.toToken.address,
-//         //     smartWalletAddress,
-//         //     false,
-//         //     network.chain_id
-//         // );
+    private constructor(fromToken: Token, toToken: Token, amount: number) {
+        super(IntentType.SWAP, `Swap amount worth of ${amount} from ${fromToken.symbol} to ${toToken.symbol}`);
+        this.fromToken = fromToken;
+        this.toToken = toToken;
+        this.amount = amount;
+    }
 
-//         // return transactions;
-//     }
-// }
+    static create(fromToken: Token, toToken: Token, amount: number): SwapIntent {
+        return new SwapIntent(fromToken, toToken, amount);
+    }
+
+    async buildTransaction(network: NetworkInfo, fromAddress: string) {
+
+        const req = await triggerSwapRoute({ fromAddress: fromAddress, chainId: network.chain_id, tokenIn: this.fromToken.address, tokenOut: this.toToken.address, amountIn: this.amount })
+        return req
+
+    }
+}
 
 // class SellIntent extends IntentBase {
 //     fromToken: Token;
@@ -138,44 +128,32 @@
 //     }
 // }
 
-// type Intent = SendIntent | BuyIntent | SellIntent;
+type Intent = SendIntent | SwapIntent
 
-// function loadIntent(intentData: Record<string, any>): Intent {
-//     switch (intentData.type) {
-//         case IntentType.SEND:
-//             return SendIntent.create(
-//                 {
-//                     symbol: intentData.token.symbol,
-//                     address: intentData.token.address,
-//                 },
-//                 intentData.amount,
-//                 { original_str: intentData.receiver }
-//             );
-//         case IntentType.BUY:
-//             return BuyIntent.create(
-//                 {
-//                     symbol: intentData.from_token.symbol,
-//                     address: intentData.from_token.address,
-//                 },
-//                 {
-//                     symbol: intentData.to_token.symbol,
-//                     address: intentData.to_token.address,
-//                 },
-//                 intentData.amount
-//             );
-//         case IntentType.SELL:
-//             return SellIntent.create(
-//                 {
-//                     symbol: intentData.from_token.symbol,
-//                     address: intentData.from_token.address,
-//                 },
-//                 {
-//                     symbol: intentData.to_token.symbol,
-//                     address: intentData.to_token.address,
-//                 },
-//                 intentData.amount
-//             );
-//         default:
-//             throw new Error(`Unknown intent type: ${intentData.type}`);
-//     }
-// }
+export function loadIntent(intentData: Record<string, any>): Intent {
+    switch (intentData.type) {
+        case IntentType.SEND:
+            return SendIntent.create(
+                {
+                    symbol: intentData.token.symbol,
+                    address: intentData.token.address,
+                },
+                intentData.amount,
+                intentData.receiver
+            );
+        case IntentType.SWAP:
+            return SwapIntent.create(
+                {
+                    symbol: intentData.from_token.symbol,
+                    address: intentData.from_token.address,
+                },
+                {
+                    symbol: intentData.to_token.symbol,
+                    address: intentData.to_token.address,
+                },
+                intentData.amount
+            );
+        default:
+            throw new Error(`Unknown intent type: ${intentData.type}`);
+    }
+}

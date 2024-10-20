@@ -1,7 +1,6 @@
+import { NATIVE_TOKEN_ADDRESS } from "@/lib/constants";
 import { ETHAddress, getERC20Balance, getNativeBalance } from "../lib/utils";
 import { AgentFunction } from "@pluralityai/agents";
-const NATIVE_TOKEN_ADDRESS = "0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE"
-
 
 export const getTokenBalanceAgentFunction: AgentFunction = {
     name: "getTokenBalance",
