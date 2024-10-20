@@ -9,9 +9,10 @@ export const constructBridgeTransaction = async (
     tokenAddress: string,
     tokenAmount: bigint,
 ) => {
-    const destinationNetworkId = 1;
     const forceUpdateGlobalExitRoot = true;
     const permitData = '0x';
+
+    const destinationNetworkId = 1
 
     const data = encodeFunctionData({
         abi: UNIFIED_BRIDGE,

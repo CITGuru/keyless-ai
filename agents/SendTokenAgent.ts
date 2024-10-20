@@ -1,5 +1,5 @@
 import { Swarm, Agent, AgentFunction } from "@pluralityai/agents";
-import { transferToSwapAgent } from "./agentFunctions";
+import { transferToBridgeAgent, transferToSwapAgent } from "./agentFunctions";
 
 const prepareTransaction: AgentFunction = {
   name: "prepareTransaction",
@@ -79,12 +79,12 @@ export const SendTokenAgent = new Agent({
         "receiver": "0xd8dA6BF26964aF9D7eEd9e03E53415D37aA96045",
         "token": "UNI"
     }}
-    Note: if you see bridge, use the transferToSwapAgent function
+    Note: if you see bridge, use the transferToBridgeAgent function
 
     Above are examples, NOTE these are only examples and in practice you need to call the tools with the correct arguments. NEVER respond with JSON.
     Take extra care in the order of transactions to prepare.
     IF a prepared swap transaction will provide the token needed for a transfer, you DO NOT need to call the getTokenBalance tool.
   `,
   model: "gpt-4o-mini",
-  functions: [prepareTransaction, transferToSwapAgent],
+  functions: [prepareTransaction, transferToSwapAgent, transferToBridgeAgent],
 });

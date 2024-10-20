@@ -7,7 +7,7 @@ import { symbol, z } from "zod";
 
 import { SendTokenAgent, AssistantAgent } from "../../../agents";
 import { loadIntent } from "../../../lib/intents"
-import { ETHAddress, getTokenDetails } from "@/lib/utils";
+import { ETHAddress, getChainByName, getTokenDetails } from "@/lib/utils";
 import { constructBundleRequest, triggerBundleRoute } from "@/lib/enso";
 
 const swarm = new Swarm(process.env.OPEN_API_KEY);
@@ -27,10 +27,11 @@ const Schema = z.object({
 });
 
 
-const agents = ["prepareTransaction", "prepareSwapTransaction"]
+const agents = ["prepareTransaction", "prepareSwapTransaction", "prepareBridgeTransaction"]
 const agentIntent: any = {
     "prepareTransaction": "send",
-    "prepareSwapTransaction": "swap"
+    "prepareSwapTransaction": "swap",
+    "prepareBridgeTransaction": "bridge"
 }
 
 export async function POST(request: NextRequest) {
@@ -98,6 +99,34 @@ export async function POST(request: NextRequest) {
                         tokenOut: tokenOut,
                     }
                 }
+                else if (action.tool_name == "prepareBridgeTransaction") {
+
+                    let _chain = getChainByName(action.content.fromChain)?.chainId
+
+                    const fromChain = {
+                        name: action.content.fromChain,
+                        chain_id: _chain
+                    }
+                    const toChain = {
+                        name: action.content.toChain,
+                        chain_id: getChainByName(action.content.toChain)?.chainId
+                    }
+                    const token = {
+                        symbol: action.content.token,
+                        address: getTokenDetails(action.content.token, Number(_chain))?.address
+                    }
+                    payload = {
+                        ...payload,
+                        amount: action.content.amount,
+                        fromChain,
+                        toChain,
+                        token,
+                    }
+
+
+                    console.log(payload, "bridge")
+                }
+
                 const txIntent = loadIntent({ ...payload })
 
                 const txData = await txIntent.buildTransaction({ chain_id: Number(data.chain) }, data.account)
@@ -112,12 +141,15 @@ export async function POST(request: NextRequest) {
         }
 
 
-        let bundleList: any = actionExpand.map((a)=>({content: a.resolved, type: a.tool_name}))
+        let bundleList: any = actionExpand.map((a) => ({ content: a.resolved, type: a.tool_name }))
 
         bundleList = await constructBundleRequest(bundleList);
 
-        const bundleTx = await triggerBundleRoute({ chainId: Number(chain), fromAddress: data.account}, bundleList)
+        let bundleTx
 
+        if (bundleList.length) {
+            bundleTx = await triggerBundleRoute({ chainId: Number(chain), fromAddress: data.account }, bundleList)
+        }
 
         const message = response.messages[response.messages.length - 1].content;
 

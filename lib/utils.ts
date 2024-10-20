@@ -5,6 +5,7 @@ import { ERC20_ABI } from './abi'
 import { clsx, type ClassValue } from "clsx"
 import { twMerge } from "tailwind-merge"
 import { token_list } from './tokens'
+import { chainlist } from './chain_list'
 
 // Create the viem client (mainnet, for example)
 const client = createPublicClient({
@@ -149,4 +150,9 @@ export const getTokenDetails =(symbol: string, chainId: number)=>{
 export const getTokenDetailsByContract =(contractAddress: string)=>{
   const token = token_list.find((t)=> t.address.toLowerCase()==contractAddress.toLowerCase())
   return token
+}
+
+export const getChainByName =(name: string)=>{
+  const chain = chainlist.find((t)=> t.name.toLowerCase() == name?.toLowerCase())
+  return chain
 }

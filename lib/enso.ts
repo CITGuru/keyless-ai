@@ -68,7 +68,7 @@ export const constructBundleRequest = async (actions: { type?: string, content: 
                 bundleList.push(swap)
                 break;
             default:
-                throw new Error("Not supported")
+                continue;
         }
 
     }
