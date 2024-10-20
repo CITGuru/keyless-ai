@@ -1,7 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 // Initialize Swarm with your API key
-import { Swarm
- } from "@pluralityai/agents";
+import {
+    Swarm
+} from "@pluralityai/agents";
 import { z } from "zod";
 
 import { SendTokenAgent } from "../../../agents/SendTokenAgent";
@@ -22,6 +23,9 @@ const Schema = z.object({
     chain: z.string()
 });
 
+
+const agents = ["prepareTransaction", "prepareSwapTransaction"]
+
 export async function POST(request: NextRequest) {
     const body = await request.json();
     const data = Schema.parse(body)
@@ -32,11 +36,16 @@ export async function POST(request: NextRequest) {
         const response = await swarm.run({
             agent: SendTokenAgent,
             messages,
-        }) as { messages: { content: string }[] }
+        }) as { messages: { content: string, role: string, tool_call_id?: string, tool_name?: string }[] }
 
-        const result = response.messages[response.messages.length - 1].content;
 
-        return NextResponse.json({ response, message: result });
+        const tools = response.messages.filter((message) => message.tool_name && agents.includes(message.tool_name)).map((m)=>({...m, content: JSON.parse(m.content)}))
+
+
+        const message = response.messages[response.messages.length - 1].content;
+
+
+        return NextResponse.json({ tools, message: message });
     } catch (error) {
         console.error("Error:", error);
         return NextResponse.json(
