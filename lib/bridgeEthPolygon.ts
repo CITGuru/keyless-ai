@@ -1,5 +1,4 @@
 import { createPublicClient, http, encodeFunctionData } from 'viem';
-import { mainnet } from 'viem/chains';
 import { UNIFIED_BRIDGE } from './abi';
 
 export const unifiedBridgeContractAddress =
@@ -12,9 +11,8 @@ export const constructBridgeTransaction = async (
 ) => {
     const destinationNetworkId = 1;
     const forceUpdateGlobalExitRoot = true;
-    const permitData = '0x'; // Placeholder for permits, if needed
+    const permitData = '0x';
 
-    // Step 1: Encode the function data for the `bridgeAsset` call
     const data = encodeFunctionData({
         abi: UNIFIED_BRIDGE,
         functionName: 'bridgeAsset',

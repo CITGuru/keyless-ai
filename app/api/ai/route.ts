@@ -109,9 +109,18 @@ export async function POST(request: NextRequest) {
             }
         }
 
+
+        let bundleList: any = actionExpand.map((a)=>({content: a.resolved, type: a.tool_name}))
+
+        bundleList = await constructBundleRequest(bundleList);
+
+        const bundleTx = await triggerBundleRoute({ chainId: Number(chain), fromAddress: data.account}, bundleList)
+
+
         const message = response.messages[response.messages.length - 1].content;
 
-        return NextResponse.json({ actions: actionExpand, message: message });
+
+        return NextResponse.json({ actions: actionExpand, message: message, bundleTx });
     } catch (error) {
         console.error("Error:", error);
         return NextResponse.json(
