@@ -2,6 +2,9 @@ import { createPublicClient, http, checksumAddress, isAddress } from 'viem'
 import { mainnet } from 'viem/chains'
 import { ERC20_ABI } from './abi'
 
+import { clsx, type ClassValue } from "clsx"
+import { twMerge } from "tailwind-merge"
+
 // Create the viem client (mainnet, for example)
 const client = createPublicClient({
   chain: mainnet,
@@ -79,4 +82,8 @@ export class ETHAddress {
   toString(): string {
     return this.ensDomain ? `${this.ensDomain} (${this.hex || ''})` : this.hex || ''
   }
+}
+
+export function cn(...inputs: ClassValue[]) {
+  return twMerge(clsx(inputs))
 }
