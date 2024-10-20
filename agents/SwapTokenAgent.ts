@@ -1,5 +1,6 @@
 import { Swarm, Agent, AgentFunction } from "@pluralityai/agents";
-import { SendTokenAgent } from ".";
+
+import { transferToBridgeAgent, transferToSendAgent } from "./agentFunctions"
 
 const prepareSwapTransaction: AgentFunction = {
   name: "prepareSwapTransaction",
@@ -31,18 +32,7 @@ const prepareSwapTransaction: AgentFunction = {
 };
 
 
-const transferToSendAgent: AgentFunction = {
-  name: "transferToSendAgent",
-  func: () => {
-    console.log("Transferring to Send Token Agent");
-    return SendTokenAgent;
-  },
-  descriptor: {
-    name: "transferToSendAgent",
-    description: "Transfer send interactions to Send Token Agent",
-    parameters: {},
-  },
-};
+
 
 
 // Create a Send Token Agent
@@ -70,8 +60,12 @@ export const SwapTokenAgent = new Agent({
     Example 3:
     User: Swap ETH to 5 USDC, then swap that USDC for 6 UNI
     Call prepareSwapTransaction: "ETH to 5 USDC\nUSDC to 6 UNI"
-
     Example 4:
+    User: Swap ETH to 5 USDC, then bridge 10 USDC from sepolia to zkEvm
+    Call prepareSwapTransaction: "ETH to 5 USDC"
+    Note: the second step is a bridge action and should be transfer to the bridge agent using the 
+    transferToBridgeAgent function
+    Example 5:
     User: Buy 2 ETH worth of WBTC and then send 1 WBTC to 0x123..456
     Call prepareSwapTransaction: "2 ETH to WBTC"
     Note: if you see send/transfer, use the transferToSendAgent function
@@ -91,5 +85,5 @@ export const SwapTokenAgent = new Agent({
     Only call tools, do not respond with JSON.
   `,
   model: "gpt-4o",
-  functions: [prepareSwapTransaction, transferToSendAgent],
+  functions: [prepareSwapTransaction, transferToSendAgent, transferToBridgeAgent],
 });

@@ -40,8 +40,10 @@ export async function POST(request: NextRequest) {
     const messages = [{ role: "user", content: query }];
 
     try {
+
+        let agent = SendTokenAgent
         const response = await swarm.run({
-            agent: SendTokenAgent,
+            agent: agent,
             messages,
         }) as { messages: { content: string, role: string, tool_call_id?: string, tool_name?: string }[] }
 
