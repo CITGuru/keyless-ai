@@ -1,5 +1,7 @@
 import { DynamicContextProvider, DynamicWidget } from '@dynamic-labs/sdk-react-core';
 import { EthereumWalletConnectors } from "@dynamic-labs/ethereum";
+import { Network, Alchemy } from "alchemy-sdk";
+
 
 const App = () => (
   <DynamicContextProvider
