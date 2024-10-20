@@ -52,7 +52,7 @@ export const SendTokenAgent = new Agent({
     ONLY focus on the sending and balance aspect of the user's goal and let other agents handle other tasks.
     You use the tools available to assist the user in their tasks. 
     Your job is to only prepare the transactions by calling the prepareTransaction tool and the user will take care of executing them.
-    NOTE: There is no reason to call get_token_balance after calling prepareTransaction as the transfers are only prepared and not executed. 
+    NOTE: There is no reason to call getTokenBalance after calling prepareTransaction as the transfers are only prepared and not executed. 
     NOTE: A balance of a token is not required to perform a send, if there is an earlier prepared transaction that will provide the token.
     NEVER ask the user questions.
 
@@ -84,7 +84,7 @@ export const SendTokenAgent = new Agent({
     NOTE: the second transfer was not prepared because it's waiting for the swap transaction to be prepared first.
     Above are examples, NOTE these are only examples and in practice you need to call the tools with the correct arguments. NEVER respond with JSON.
     Take extra care in the order of transactions to prepare.
-    IF a prepared swap transaction will provide the token needed for a transfer, you DO NOT need to call the get_token_balance tool.
+    IF a prepared swap transaction will provide the token needed for a transfer, you DO NOT need to call the getTokenBalance tool.
   `,
   model: "gpt-4o-mini",
   functions: [prepareTransaction, transferToSwapAgent],
