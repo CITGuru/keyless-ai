@@ -19,9 +19,9 @@ export default function DynamicMethods({ isDarkMode }) {
     const [signatureResolver, setSignatureResolver] = useState(null);
 
     const previewButtons = [
-        { text: "What services do you offer?", action: () => handleSubmit("What services do you offer?") },
-        { text: "How can I get started?", action: () => handleSubmit("How can I get started?") },
-        { text: "Tell me about your pricing", action: () => handleSubmit("Tell me about your pricing") },
+        { text: "Swap 10.0 USD to ETH", action: () => handleSubmit("Swap 10.0 USD to ETH") },
+        { text: "Send 0.1 ETH to the following address: 0xc6f2Fe91df8548DcAfBEA0076d138b947ED58a4a", action: () => handleSubmit("Send 0.1 ETH to the following address: 0xc6f2Fe91df8548DcAfBEA0076d138b947ED58a4a") },
+        { text: "Bridge 0.1 ETH to Polygon at: 0xC4b4F09Af695F5a329a4DBb5BB57C64258b042EB", action: () => handleSubmit("Bridge 0.1 ETH to my Polygon address: 0xC4b4F09Af695F5a329a4DBb5BB57C64258b042EB") },
     ]
 
     const handleSignatureRequest = () => {
@@ -111,18 +111,6 @@ export default function DynamicMethods({ isDarkMode }) {
 
     return (
         <>
-            {/* <div className="container mx-auto p-4">
-                <CustomChatbot
-                previewButtons={previewButtons}
-                onSubmit={handleSubmit}
-                onSignatureRequest={handleSignatureRequest}
-                />
-                <SignaturePopup
-                isOpen={isSignaturePopupOpen}
-                onClose={() => setIsSignaturePopupOpen(false)}
-                onSign={handleSign}
-                />
-            </div> */}
             {!isLoading && (
                 <div className="dynamic-methods" data-theme={isDarkMode ? 'dark' : 'light'}>
                     <div className="methods-container">
@@ -144,51 +132,12 @@ export default function DynamicMethods({ isDarkMode }) {
                                     onSign={handleSign}
                                     />
                                 </div>
-                            {/* <div className="ai-chat-container flex flex-col h-[500px] w-full max-w-[600px] border border-gray-300 rounded-lg overflow-hidden">
-                                <div className="chat-messages flex-grow overflow-y-auto p-4">
-                                    {messages.map((message, index) => (
-                                        <div key={index} className={`message ${message.role} mb-4`}>
-                                            {message.content}
-                                            {message.buttons && (
-                                                <div className="button-container mt-2">
-                                                    {message.buttons.map((button, btnIndex) => (
-                                                        <button
-                                                            key={btnIndex}
-                                                            onClick={() => handleButtonClick(button.action)}
-                                                            className="mr-2 mb-2 px-3 py-1 bg-blue-500 text-white rounded hover:bg-blue-600"
-                                                        >
-                                                            {button.text}
-                                                        </button>
-                                                    ))}
-                                                </div>
-                                            )}
-                                        </div>
-                                    ))}
-                                </div>
-                                <div className="chat-input-container border-t border-gray-300 p-4">
-                                    <form onSubmit={handleSubmit} className="flex">
-                                        <input
-                                            type="text"
-                                            value={input}
-                                            onChange={(e) => setInput(e.target.value)}
-                                            className="flex-grow mr-2 px-3 py-2 border border-gray-300 rounded"
-                                            placeholder="Type your message..."
-                                        />
-                                        <button
-                                            type="submit"
-                                            className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
-                                        >
-                                            Send
-                                        </button>
-                                    </form>
-                                </div>
-                            </div> */}
+                            
                             </div>  
                         }
                         {/* <button className="btn btn-primary" onClick={fetchPublicClient}>Fetch Public Client</button>
                         <button className="btn btn-primary" onClick={fetchWalletClient}>Fetch Wallet Client</button>
                         <button className="btn btn-primary" onClick={signMessage}>Sign 'Hello World' on Ethereum</button> */}
-
 
                     </div>
                     {result && (

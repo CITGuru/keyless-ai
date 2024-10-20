@@ -68,7 +68,7 @@ export default function CustomChatbot({
   }
 
   return (
-    <Card className="w-full max-w-2xl mx-auto">
+    <Card className="w-[1000px] min-w-2xl max-w-2xl mx-auto">
       <CardContent className="p-6">
         <ScrollArea className="h-[600px] pr-4" ref={scrollAreaRef}>
           {messages.map((message, index) => (
