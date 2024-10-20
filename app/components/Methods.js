@@ -72,7 +72,7 @@ export default function DynamicMethods({ isDarkMode }) {
         const requestBody = {
             query: message,
             account: primaryWallet.address,
-            chain: await primaryWallet.connector.getNetwork()
+            chain: (await primaryWallet.connector.getNetwork()).toString()
         };
         setLastApiRequest(requestBody);
 
