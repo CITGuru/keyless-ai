@@ -25,6 +25,7 @@ export default function DynamicMethods({ isDarkMode }) {
     const [transactionDetails, setTransactionDetails] = useState({});
     const [lastApiRequest, setLastApiRequest] = useState(null);
     const [lastApiResponse, setLastApiResponse] = useState(null);
+    const [currentTxData, setCurrentTxData] = useState(null);
 
     const previewButtons = [
         { text: "Swap 10.0 USDC to ETH", action: () => handleSubmit("Swap 10.0 USDC to ETH") },
@@ -32,27 +33,46 @@ export default function DynamicMethods({ isDarkMode }) {
         { text: "Bridge 0.1 ETH to Polygon at: 0xC4b4F09Af695F5a329a4DBb5BB57C64258b042EB", action: () => handleSubmit("Bridge 0.1 ETH to my Polygon address: 0xC4b4F09Af695F5a329a4DBb5BB57C64258b042EB") },
     ]
 
-    const handleSignatureRequest = async (toolCallId) => {
+    const handleSignatureRequest = async (txData) => {
+        setCurrentTxData(txData);
         setIsSignaturePopupOpen(true);
-        // return new Promise<string>((resolve) => {
-        //     setSignatureResolver(() => resolve);
-        //     setIsSignaturePopupOpen(true);
-        // });
-        return;
-    }
+    };
 
-    const handleSign = (signature) => {
-        if (signatureResolver) {
-            signatureResolver(signature);
-            setIsSignaturePopupOpen(false); // Close the popup after signing
+    const handleSign = async () => {
+        if (!currentTxData) {
+            console.error('No transaction data available');
+            return;
         }
-    }
+
+        try {
+            const wallet = await primaryWallet.getWalletClient();
+            const { to, data, from, value } = currentTxData;
+            
+            // Include the chain information from lastApiRequest
+            const chain = lastApiRequest ? lastApiRequest.chain : primaryWallet.chainId;
+
+            const txHash = await wallet.sendTransaction({
+                to,
+                data,
+                from,
+                value,
+                chain
+            });
+
+            console.log('Transaction sent:', txHash);
+            // You might want to update the UI to show the transaction was sent successfully
+            setIsSignaturePopupOpen(false);
+        } catch (error) {
+            console.error('Error signing transaction:', error);
+            // Handle the error (e.g., show an error message to the user)
+        }
+    };
 
     const handleSubmit = async (message) => {
         const requestBody = {
             query: message,
             account: primaryWallet.address,
-            chain: primaryWallet.chainId,
+            chain: await primaryWallet.connector.getNetwork()
         };
         setLastApiRequest(requestBody);
         // const testResponse = {

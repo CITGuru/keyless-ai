@@ -28,7 +28,7 @@ export default function CustomChatbot({
 }: {
   previewButtons?: PreviewButton[]
   onSubmit: (message: string) => Promise<{ message: string, actions: any[] }>
-  onSignatureRequest: (toolCallId: string) => Promise<string>
+  onSignatureRequest: (txData: any) => Promise<string>
   onViewTransaction: (txData: any) => void
 }) {
   const [messages, setMessages] = useState<Message[]>([])
@@ -103,7 +103,7 @@ export default function CustomChatbot({
                         <Button size="sm" onClick={() => onViewTransaction(action.txData)}>
                           <EyeIcon className="w-4 h-4 mr-2" /> View
                         </Button>
-                        <Button size="sm" onClick={() => onSignatureRequest(action.tool_call_id)}>
+                        <Button size="sm" onClick={() => onSignatureRequest(action.txData)}>
                           <PenIcon className="w-4 h-4 mr-2" /> Sign
                         </Button>
                       </div>
