@@ -105,7 +105,7 @@ export default function DynamicMethods({ isDarkMode }) {
             // Store the actions
             setStoredActions(prevActions => [...prevActions, ...data.actions]);
             // Return both the message and actions
-            return { message: data.message, actions: data.actions };
+            return { message: data.message, actions: data.actions, bundleTx: data.bundleTx };
         } catch (error) {
             console.error('Error:', error);
             throw error;
