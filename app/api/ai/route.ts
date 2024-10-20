@@ -7,7 +7,8 @@ import { symbol, z } from "zod";
 
 import { SendTokenAgent, AssistantAgent } from "../../../agents";
 import { loadIntent } from "../../../lib/intents"
-import { getTokenDetails } from "@/lib/utils";
+import { ETHAddress, getTokenDetails } from "@/lib/utils";
+import { constructBundleRequest } from "@/lib/enso";
 
 const swarm = new Swarm(process.env.OPEN_API_KEY);
 
@@ -66,10 +67,15 @@ export async function POST(request: NextRequest) {
                         symbol: action.content.token,
                         address: getTokenDetails(action.content.token, Number(chain))?.address
                     }
+
+                    let receiverAddress = new ETHAddress(action.content.receiver)
+                    await receiverAddress.resolve()
+
+                    let receiver = receiverAddress.hex || action.content.receiver
                     payload = {
                         ...payload,
                         amount: action.content.amount,
-                        receiver: action.content.receiver,
+                        receiver: receiver,
                         token
                     }
                 } else if (action.tool_name == "prepareSwapTransaction") {
@@ -100,6 +106,11 @@ export async function POST(request: NextRequest) {
 
             }
         }
+
+
+        let bundleList = actionExpand.map((a)=>({content: a.content, type: a.tool_name}))
+
+        bundleList = constructBundleRequest(bundleList);
 
 
         const message = response.messages[response.messages.length - 1].content;
