@@ -62,6 +62,13 @@ export default function CustomChatbot({
           showButtons: true // Add this flag to show buttons
         }
         setMessages(prev => [...prev, botMessage])
+
+        // Check if we need to request a signature
+        // if (response.includes('[SIGNATURE_REQUIRED]')) {
+        //   const signature = await onSignatureRequest()
+        //   const signatureMessage: Message = { role: 'system', content: `Signature received: ${signature}` }
+        //   setMessages(prev => [...prev, signatureMessage])
+        // }
       }
     } catch (error) {
       console.error('Error in chat submission:', error)

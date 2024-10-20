@@ -23,6 +23,8 @@ export default function DynamicMethods({ isDarkMode }) {
     const [signatureResolver, setSignatureResolver] = useState(null);
     const [isTransactionDetailsOpen, setIsTransactionDetailsOpen] = useState(false);
     const [transactionDetails, setTransactionDetails] = useState({});
+    const [lastApiRequest, setLastApiRequest] = useState(null);
+    const [lastApiResponse, setLastApiResponse] = useState(null);
 
     const previewButtons = [
         { text: "Swap 10.0 USDC to ETH", action: () => handleSubmit("Swap 10.0 USDC to ETH") },
@@ -47,7 +49,12 @@ export default function DynamicMethods({ isDarkMode }) {
     }
 
     const handleSubmit = async (message) => {
-        
+        const requestBody = {
+            query: message,
+            account: primaryWallet.address,
+            chain: primaryWallet.chainId,
+        };
+        setLastApiRequest(requestBody);
         const testResponse = {
             "tools": [
                 {
@@ -98,6 +105,7 @@ export default function DynamicMethods({ isDarkMode }) {
                 }
             ]
         }
+        setLastApiResponse(testResponse);
         console.log(testResponse);
         console.log("End of handleSubmit");
         return testResponse.message;
@@ -108,11 +116,7 @@ export default function DynamicMethods({ isDarkMode }) {
                 headers: {
                     'Content-Type': 'application/json',
                 },
-                body: JSON.stringify({ 
-                    "query": message,
-                    "account": primaryWallet.address,
-                    "chain": primaryWallet.chainId,
-                }),
+                body: JSON.stringify(requestBody),
             });
 
             const data = await response.json();
@@ -121,7 +125,7 @@ export default function DynamicMethods({ isDarkMode }) {
                 return testResponse;
                 // throw new Error(data.error || 'An error occurred while processing your request.');
             }
-
+            setLastApiResponse(data.message);
             // Return the message from the response
             return data.message || 'No message received from the server.';
         } catch (error) {
@@ -135,7 +139,32 @@ export default function DynamicMethods({ isDarkMode }) {
         console.log(`Button clicked with action: ${action}`);
     };
 
-    const handleViewTransaction = (details) => {
+    const handleViewTransaction = () => {
+        if (!lastApiRequest || !lastApiResponse) {
+            console.error('No transaction details available');
+            return;
+        }
+
+        const details = {
+            // Request details
+            userQuery: lastApiRequest.query,
+            account: lastApiRequest.account,
+            chain: lastApiRequest.chain,
+
+            // Response details
+            // transactionId: lastApiResponse.transactionDetails.transactionId,
+            // action: lastApiResponse.transactionDetails.action,
+            // tokenIn: lastApiResponse.transactionDetails.tokenIn,
+            // tokenOut: lastApiResponse.transactionDetails.tokenOut,
+            // amount: lastApiResponse.transactionDetails.amount,
+
+            // Additional details from the tools array, if needed
+            toolCalls: lastApiResponse.tools.map(tool => ({
+                toolName: tool.tool_name,
+                ...tool.content
+            }))
+        };
+
         setTransactionDetails(details);
         setIsTransactionDetailsOpen(true);
     };

@@ -21,13 +21,13 @@ export default function SignaturePopup({ isOpen, onClose, onSign }: {
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>Signature Required</DialogTitle>
+          <DialogTitle>Are you sure you want to sign this transaction? This action cannot be undone.</DialogTitle>
         </DialogHeader>
-        <Input
+        {/* <Input
           value={signature}
           onChange={(e) => setSignature(e.target.value)}
           placeholder="Enter your signature"
-        />
+        /> */}
         <DialogFooter>
           <Button onClick={handleSign}>Sign</Button>
         </DialogFooter>
