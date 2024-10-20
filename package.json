@@ -29,11 +29,14 @@
     "postcss": "^8.4.47",
     "react": "^18",
     "react-dom": "^18",
+    "react-router-dom": "^6.27.0",
+    "react-scripts": "5.0.1",
     "tailwind-merge": "^2.5.4",
     "tailwindcss": "^3.4.14",
     "tailwindcss-animate": "^1.0.7",
     "viem": "*",
     "wagmi": "^2.5.7",
+    "web-vitals": "^2.1.4",
     "zod": "^3.23.8"
   },
   "devDependencies": {
