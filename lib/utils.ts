@@ -36,6 +36,11 @@ export async function getERC20Balance(address: string, contractAddress: string) 
 }
 
 
+export async function getErc20Info(){
+  
+}
+
+
 
 export class ETHAddress {
   hex?: `0x${string}`
