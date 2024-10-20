@@ -19,32 +19,48 @@ export default function DynamicMethods({ isDarkMode }) {
     const [signatureResolver, setSignatureResolver] = useState(null);
 
     const previewButtons = [
-        { text: "Swap 10.0 USD to ETH", action: () => handleSubmit("Swap 10.0 USD to ETH") },
+        { text: "Swap 10.0 USDC to ETH", action: () => handleSubmit("Swap 10.0 USDC to ETH") },
         { text: "Send 0.1 ETH to the following address: 0xc6f2Fe91df8548DcAfBEA0076d138b947ED58a4a", action: () => handleSubmit("Send 0.1 ETH to the following address: 0xc6f2Fe91df8548DcAfBEA0076d138b947ED58a4a") },
         { text: "Bridge 0.1 ETH to Polygon at: 0xC4b4F09Af695F5a329a4DBb5BB57C64258b042EB", action: () => handleSubmit("Bridge 0.1 ETH to my Polygon address: 0xC4b4F09Af695F5a329a4DBb5BB57C64258b042EB") },
     ]
 
-    const handleSignatureRequest = () => {
+    const handleSignatureRequest = async () => {
         return new Promise<string>((resolve) => {
-        setSignatureResolver(() => resolve)
-        setIsSignaturePopupOpen(true)
-        })
+            setSignatureResolver(() => resolve);
+            setIsSignaturePopupOpen(true);
+        });
     }
 
     const handleSign = (signature) => {
         if (signatureResolver) {
-        signatureResolver(signature)
+            signatureResolver(signature);
         }
     }
 
-    const handleSubmit = (e) => {
-        e.preventDefault();
-        if (input.trim()) {
-            setMessages([...messages, { role: 'user', content: input }]);
-            // Here you would typically call your AI service to get a response
-            // For now, we'll just echo the user's input
-            setMessages(prevMessages => [...prevMessages, { role: 'ai', content: `You said: ${input}`, buttons: [{ text: 'Example Button', action: 'exampleAction' }] }]);
-            setInput('');
+    const handleSubmit = async (message) => {
+        try {
+            const response = await fetch('/api/ai', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    // Add any other headers your API requires
+                },
+                body: JSON.stringify({ 
+                    "query": message,
+                    "account": primaryWallet.address,
+                    "chain": primaryWallet.chain,
+                }),
+            });
+
+            if (!response.ok) {
+                throw new Error('Network response was not ok');
+            }
+
+            const data = await response.json();
+            return data.response; // Assuming your API returns a 'response' field
+        } catch (error) {
+            console.error('Error:', error);
+            return 'An error occurred while processing your request.';
         }
     };
 
@@ -123,14 +139,14 @@ export default function DynamicMethods({ isDarkMode }) {
                             <div>
                                 <div className="container mx-auto p-4">
                                     <CustomChatbot
-                                    previewButtons={previewButtons}
-                                    onSubmit={handleSubmit}
-                                    onSignatureRequest={handleSignatureRequest}
+                                        previewButtons={previewButtons}
+                                        onSubmit={handleSubmit}
+                                        onSignatureRequest={handleSignatureRequest}
                                     />
                                     <SignaturePopup
-                                    isOpen={isSignaturePopupOpen}
-                                    onClose={() => setIsSignaturePopupOpen(false)}
-                                    onSign={handleSign}
+                                        isOpen={isSignaturePopupOpen}
+                                        onClose={() => setIsSignaturePopupOpen(false)}
+                                        onSign={handleSign}
                                     />
                                 </div>
                             
