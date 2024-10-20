@@ -184,7 +184,7 @@ export default function DynamicMethods({ isDarkMode }) {
                 <div className="dynamic-methods" data-theme={isDarkMode ? 'dark' : 'light'}>
                     <div className="methods-container">
 
-                    <button className="btn btn-primary" onClick={signTransaction}>Sign Transaction</button>
+                    {/* <button className="btn btn-primary" onClick={signTransaction}>Sign Transaction</button> */}
                         {/* <button className="btn btn-primary" onClick={showUser}>Fetch User</button>
                         <button className="btn btn-primary" onClick={showUserWallets}>Fetch User Wallets</button> */}
 
