@@ -49,13 +49,13 @@ export async function POST(request: NextRequest) {
         const actions = response.messages.filter((message) => message.tool_name && agents.includes(message.tool_name)).map((m) => ({ ...m, content: JSON.parse(m.content) }))
 
 
-        let actionExpand = []
-        let chain = data.chain
+        const actionExpand = []
+        const chain = data.chain
 
 
         for (const action of actions) {
             if (action.tool_name) {
-                let intent = agentIntent[action.tool_name]
+                const intent = agentIntent[action.tool_name]
 
                 let payload: { [x: string]: any } = {
                     type: intent,
@@ -69,10 +69,10 @@ export async function POST(request: NextRequest) {
                         address: getTokenDetails(action.content.token, Number(chain))?.address
                     }
 
-                    let receiverAddress = new ETHAddress(action.content.receiver)
+                    const receiverAddress = new ETHAddress(action.content.receiver)
                     await receiverAddress.resolve()
 
-                    let receiver = receiverAddress.hex || action.content.receiver
+                    const receiver = receiverAddress.hex || action.content.receiver
                     payload = {
                         ...payload,
                         amount: action.content.amount,
@@ -96,9 +96,9 @@ export async function POST(request: NextRequest) {
                         tokenOut: tokenOut,
                     }
                 }
-                let txIntent = loadIntent({ ...payload })
+                const txIntent = loadIntent({ ...payload })
 
-                let txData = await txIntent.buildTransaction({ chain_id: Number(data.chain) }, data.account)
+                const txData = await txIntent.buildTransaction({ chain_id: Number(data.chain) }, data.account)
 
                 actionExpand.push({
                     ...action,

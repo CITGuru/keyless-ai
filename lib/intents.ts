@@ -17,12 +17,9 @@ interface NetworkInfo {
     chain_id: number;
 }
 
-interface Transaction {
-    // Add transaction structure here as needed
-}
-
 interface TxParams {
     // Add parameters for the transaction as needed
+    [key: string]: unknown;
 }
 
 abstract class IntentBase {
@@ -56,11 +53,11 @@ class SendIntent extends IntentBase {
     async buildTransaction(network: NetworkInfo, smartWalletAddress: string) {
         let tx: TxParams;
 
-        let receiverAddress = new ETHAddress(this.receiver)
+        const receiverAddress = new ETHAddress(this.receiver)
 
         await receiverAddress.resolve()
 
-        let receiver = receiverAddress.hex || this.receiver
+        const receiver = receiverAddress.hex || this.receiver
 
         if (this.token.address === NATIVE_TOKEN_ADDRESS) {
             tx = buildTransferNative(smartWalletAddress, receiver, this.amount);
@@ -90,11 +87,11 @@ class SwapIntent extends IntentBase {
     }
 
     async buildTransaction(network: NetworkInfo, fromAddress: string) {
-        let token = getTokenDetailsByContract(this.fromToken.address)
+        const token = getTokenDetailsByContract(this.fromToken.address)
 
-        let decimal = token?.decimals || 18
+        const decimal = token?.decimals || 18
 
-        let amount = parseUnits(this.amount.toString(), decimal)
+        const amount = parseUnits(this.amount.toString(), decimal)
 
         const req = await triggerSwapRoute({ fromAddress: fromAddress, chainId: network.chain_id, tokenIn: this.fromToken.address, tokenOut: this.toToken.address, amountIn: amount.toString()})
         return req

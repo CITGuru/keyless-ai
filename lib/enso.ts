@@ -6,6 +6,12 @@ import { parseUnits } from "viem";
 
 const BASE_URL = "http://api.enso.finance/api/v1/"
 
+export interface BundleItem {
+    protocol: string;
+    action: string;
+    args: Record<string, string>;
+}
+
 
 export const EnsoAgent = axios.create({
     baseURL: BASE_URL,
@@ -16,33 +22,33 @@ export const EnsoAgent = axios.create({
     },
 });
 
-export const constructTransferAction = (token: string, recipient: string, amount: string) => {
+export const constructTransferAction = (token: string, recipient: string, amount: string): BundleItem => {
     return {
-        "protocol": "enso",
-        "action": "transfer",
-        "args": {
-            "token": token,
-            "recipient": recipient,
-            "amount": amount
+        protocol: "enso",
+        action: "transfer",
+        args: {
+            token,
+            recipient,
+            amount
         }
-    }
-}
+    };
+};
 
-export const constructSwapAction = (tokenIn: string, tokenOut: string, amount: string) => {
+export const constructSwapAction = (tokenIn: string, tokenOut: string, amount: string): BundleItem => {
     return {
-        "protocol": "enso",
-        "action": "route",
-        "args": {
-            "tokenIn": tokenIn,
-            "tokenOut": tokenOut,
-            "amountIn": amount
+        protocol: "enso",
+        action: "route",
+        args: {
+            tokenIn,
+            tokenOut,
+            amountIn: amount
         }
-    }
-}
+    };
+};
 
 
-export const constructBundleRequest = async (actions: { type?: string, content: { [x: string]: any } }[]) => {
-    let bundleList: {}[] = []
+export const constructBundleRequest = async (actions: { type?: string, content: { [x: string]: any } }[]): Promise<BundleItem[]> => {
+    const bundleList: BundleItem[] = []
 
     for (const action of actions) {
         console.log(action)
@@ -70,7 +76,7 @@ export const constructBundleRequest = async (actions: { type?: string, content: 
     return bundleList
 }
 
-export const triggerBundleRoute = async (query: { chainId: number, fromAddress: string }, body: { protocol: string, action: string, args: any }[]) => {
+export const triggerBundleRoute = async (query: { chainId: number, fromAddress: string }, body: { protocol: string, action: string, args: any }[]): Promise<BundleItem[]> => {
     const req = await EnsoAgent.post("/shortcuts/bundle", body, {
         params: {
             ...query
@@ -90,7 +96,7 @@ export const triggerBundleRoute = async (query: { chainId: number, fromAddress: 
 }
 
 
-export const triggerSwapRoute = async (body: { chainId: number, fromAddress: string, tokenIn: string, tokenOut: string, amountIn: string }) => {
+export const triggerSwapRoute = async (body: { chainId: number, fromAddress: string, tokenIn: string, tokenOut: string, amountIn: string }): Promise<BundleItem[]> => {
     const req = await EnsoAgent.get("/shortcuts/route", {
         params: {
             ...body
