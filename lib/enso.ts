@@ -33,14 +33,50 @@ export const constructSwapAction = (tokenIn: string, tokenOut: string, amount: s
         "args": {
             "tokenIn": tokenIn,
             "tokenOut": tokenOut,
-            "amount": amount
+            "amountIn": amount
         }
     }
 }
 
 
-export const constructBundleRequest = (actions: { type: string }[]) => {
+export const constructBundleRequest = (actions: { type?: string, content: { [x: string]: any } }[]) => {
+    let bundleList: {}[] = []
 
+    for (const action of actions) {
+        switch (action.type) {
+            case "prepareTransaction":
+                const transfer = constructTransferAction(action.content.token, action.content.receiver, action.content.amount)
+                bundleList.push(transfer)
+            case "prepareSwapTransaction":
+                const swap = constructSwapAction(action.content.tokenIn, action.content.tokenOut, action.content.amount)
+                bundleList.push(swap)
+
+            default:
+                throw new Error("Not supported")
+        }
+
+    }
+
+    return bundleList
+}
+
+export const triggerBundleRoute = async (query: { chainId: number, fromAddress: string }, body: { protocol: string, action: string, args: any }) => {
+    const req = await EnsoAgent.post("/shortcuts/bundle", body, {
+        params: {
+            ...query
+        },
+
+    },
+    )
+
+    const data = req?.data
+
+
+    let response = { ...data }
+    response = { ...response, ...data.tx }
+    delete response.tx
+
+    return response
 }
 
 
@@ -55,8 +91,8 @@ export const triggerSwapRoute = async (body: { chainId: number, fromAddress: str
     const data = req?.data
 
 
-    let response = {...data}
-    response = {...response, ...data.tx}
+    let response = { ...data }
+    response = { ...response, ...data.tx }
     delete response.tx
 
     return response

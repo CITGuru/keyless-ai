@@ -97,36 +97,6 @@ class SwapIntent extends IntentBase {
     }
 }
 
-// class SellIntent extends IntentBase {
-//     fromToken: Token;
-//     toToken: Token;
-//     amount: number;
-
-//     private constructor(fromToken: Token, toToken: Token, amount: number) {
-//         super(IntentType.SELL, `Sell ${amount} ${fromToken.symbol} for ${toToken.symbol}`);
-//         this.fromToken = fromToken;
-//         this.toToken = toToken;
-//         this.amount = amount;
-//     }
-
-//     static create(fromToken: Token, toToken: Token, amount: number): SellIntent {
-//         return new SellIntent(fromToken, toToken, amount);
-//     }
-
-//     async buildTransactions(web3: any, network: NetworkInfo, smartWalletAddress: ETHAddress): Promise<Transaction[]> {
-//         const transactions = await buildSwapTransaction(
-//             web3,
-//             this.amount,
-//             this.fromToken.address,
-//             this.toToken.address,
-//             smartWalletAddress,
-//             true,
-//             network.chain_id
-//         );
-
-//         return transactions;
-//     }
-// }
 
 type Intent = SendIntent | SwapIntent
 
