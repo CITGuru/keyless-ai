@@ -7,11 +7,12 @@ import { Input } from '@/components/ui/input'
 import { ScrollArea } from '@/components/ui/scroll-area'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Card, CardContent } from '@/components/ui/card'
-import { SendIcon, UserIcon } from 'lucide-react'
+import { SendIcon, UserIcon, EyeIcon, PenIcon } from 'lucide-react'
 
 type Message = {
   role: 'user' | 'assistant' | 'system'
   content: string
+  showButtons?: boolean
 }
 
 type PreviewButton = {
@@ -22,11 +23,13 @@ type PreviewButton = {
 export default function CustomChatbot({
   previewButtons = [],
   onSubmit,
-  onSignatureRequest
+  onSignatureRequest,
+  onViewTransaction,
 }: {
   previewButtons?: PreviewButton[]
   onSubmit: (message: string) => Promise<string>
   onSignatureRequest: () => Promise<string>
+  onViewTransaction: () => void
 }) {
   const [messages, setMessages] = useState<Message[]>([])
   const [input, setInput] = useState('')
@@ -52,18 +55,20 @@ export default function CustomChatbot({
 
     try {
       const response = await onSubmit(input)
-      const botMessage: Message = { role: 'assistant', content: response }
-      setMessages(prev => [...prev, botMessage])
-
-      // Check if we need to request a signature
-      if (response.includes('[SIGNATURE_REQUIRED]')) {
-        const signature = await onSignatureRequest()
-        const signatureMessage: Message = { role: 'system', content: `Signature received: ${signature}` }
-        setMessages(prev => [...prev, signatureMessage])
+      if (response) {
+        const botMessage: Message = { 
+          role: 'assistant', 
+          content: response,
+          showButtons: true // Add this flag to show buttons
+        }
+        setMessages(prev => [...prev, botMessage])
       }
     } catch (error) {
       console.error('Error in chat submission:', error)
-      const errorMessage: Message = { role: 'system', content: 'An error occurred. Please try again.' }
+      const errorMessage: Message = { 
+        role: 'system', 
+        content: error instanceof Error ? error.message : 'An unexpected error occurred. Please try again.'
+      }
       setMessages(prev => [...prev, errorMessage])
     } finally {
       setInput('')
@@ -91,6 +96,16 @@ export default function CustomChatbot({
                 </Avatar>
                 <div className={`mx-2 p-3 rounded-lg ${message.role === 'user' ? 'bg-primary text-primary-foreground' : 'bg-muted'}`}>
                   {message.content}
+                  {message.showButtons && (
+                    <div className="mt-2 flex space-x-2">
+                      <Button size="sm" onClick={onViewTransaction}>
+                        <EyeIcon className="w-4 h-4 mr-2" /> View
+                      </Button>
+                      <Button size="sm" onClick={onSignatureRequest}>
+                        <PenIcon className="w-4 h-4 mr-2" /> Sign
+                      </Button>
+                    </div>
+                  )}
                 </div>
               </div>
             </div>

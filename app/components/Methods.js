@@ -4,6 +4,10 @@ import { useDynamicContext, useIsLoggedIn, useUserWallets } from "@dynamic-labs/
 import { isEthereumWallet } from '@dynamic-labs/ethereum'
 import CustomChatbot from './custom-chatbot'
 import SignaturePopup from './signature-popup'
+import React from 'react';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
+import { ScrollArea } from "@/components/ui/scroll-area";
+// import TransactionDetailsPopup from './transaction-details-popup';
 
 import './Methods.css';
 
@@ -17,6 +21,8 @@ export default function DynamicMethods({ isDarkMode }) {
     const [input, setInput] = useState('');
     const [isSignaturePopupOpen, setIsSignaturePopupOpen] = useState(false);
     const [signatureResolver, setSignatureResolver] = useState(null);
+    const [isTransactionDetailsOpen, setIsTransactionDetailsOpen] = useState(false);
+    const [transactionDetails, setTransactionDetails] = useState({});
 
     const previewButtons = [
         { text: "Swap 10.0 USDC to ETH", action: () => handleSubmit("Swap 10.0 USDC to ETH") },
@@ -25,42 +31,102 @@ export default function DynamicMethods({ isDarkMode }) {
     ]
 
     const handleSignatureRequest = async () => {
-        return new Promise<string>((resolve) => {
-            setSignatureResolver(() => resolve);
-            setIsSignaturePopupOpen(true);
-        });
+        setIsSignaturePopupOpen(true);
+        // return new Promise<string>((resolve) => {
+        //     setSignatureResolver(() => resolve);
+        //     setIsSignaturePopupOpen(true);
+        // });
+        return;
     }
 
     const handleSign = (signature) => {
         if (signatureResolver) {
             signatureResolver(signature);
+            setIsSignaturePopupOpen(false); // Close the popup after signing
         }
     }
 
     const handleSubmit = async (message) => {
+        
+        const testResponse = {
+            "tools": [
+                {
+                    "role": "tool",
+                    "tool_call_id": "call_OxMRSKAZahnLv2O7bIbycQzy",
+                    "tool_name": "prepareSwapTransaction",
+                    "content": {
+                        "tokenIn": "USDC",
+                        "tokenOut": "ETH",
+                        "amount": "10.0"
+                    }
+                },
+                {
+                    "role": "tool",
+                    "tool_call_id": "call_fT8GxxkMHFdkukNW9gKD8Xmn",
+                    "tool_name": "prepareSwapTransaction",
+                    "content": {
+                        "tokenIn": "USDC",
+                        "tokenOut": "ETH",
+                        "amount": "10.0"
+                    }
+                }
+            ],
+            "message": "I have prepared the swap for 10.0 USDC to ETH."
+        }
+        const testResponse2 = {
+            message: "I have prepared the swap for 10.0 USDC to ETH.",
+            tools: [
+                {
+                    role: "tool",
+                    tool_call_id: "call_OxMRSKAZahnLv2O7bIbycQzy",
+                    tool_name: "prepareSwapTransaction",
+                    content: {
+                        tokenIn: "USDC",
+                        tokenOut: "ETH",
+                        amount: "10.0"
+                    }
+                },
+                {
+                    role: "tool",
+                    tool_call_id: "call_fT8GxxkMHFdkukNW9gKD8Xmn",
+                    tool_name: "prepareSwapTransaction",
+                    content: {
+                        tokenIn: "USDC",
+                        tokenOut: "ETH",
+                        amount: "10.0"
+                    }
+                }
+            ]
+        }
+        console.log(testResponse);
+        console.log("End of handleSubmit");
+        return testResponse.message;
+
         try {
             const response = await fetch('/api/ai', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
-                    // Add any other headers your API requires
                 },
                 body: JSON.stringify({ 
                     "query": message,
                     "account": primaryWallet.address,
-                    "chain": primaryWallet.chain,
+                    "chain": primaryWallet.chainId,
                 }),
             });
 
+            const data = await response.json();
+
             if (!response.ok) {
-                throw new Error('Network response was not ok');
+                return testResponse;
+                // throw new Error(data.error || 'An error occurred while processing your request.');
             }
 
-            const data = await response.json();
-            return data.response; // Assuming your API returns a 'response' field
+            // Return the message from the response
+            return data.message || 'No message received from the server.';
         } catch (error) {
             console.error('Error:', error);
-            return 'An error occurred while processing your request.';
+            throw error; // Re-throw the error to be caught in the CustomChatbot component
         }
     };
 
@@ -69,6 +135,10 @@ export default function DynamicMethods({ isDarkMode }) {
         console.log(`Button clicked with action: ${action}`);
     };
 
+    const handleViewTransaction = (details) => {
+        setTransactionDetails(details);
+        setIsTransactionDetailsOpen(true);
+    };
 
     const safeStringify = (obj) => {
         const seen = new WeakSet();
@@ -142,11 +212,17 @@ export default function DynamicMethods({ isDarkMode }) {
                                         previewButtons={previewButtons}
                                         onSubmit={handleSubmit}
                                         onSignatureRequest={handleSignatureRequest}
+                                        onViewTransaction={handleViewTransaction}
                                     />
                                     <SignaturePopup
                                         isOpen={isSignaturePopupOpen}
                                         onClose={() => setIsSignaturePopupOpen(false)}
                                         onSign={handleSign}
+                                    />
+                                    <TransactionDetailsPopup
+                                        isOpen={isTransactionDetailsOpen}
+                                        onClose={() => setIsTransactionDetailsOpen(false)}
+                                        details={transactionDetails}
                                     />
                                 </div>
                             
@@ -172,3 +248,42 @@ export default function DynamicMethods({ isDarkMode }) {
         </>
     );
 }
+// interface TransactionDetails {
+//   transactionId?: string;
+//   amount?: string;
+//   account?: string;
+//   chain?: string;
+//   action?: string;
+//   tokenIn?: string;
+//   tokenOut?: string;
+//   [key: string]: any; // Allow for additional properties
+// }
+
+// interface TransactionDetailsPopupProps {
+//   isOpen: boolean;
+//   onClose: () => void;
+//   details: TransactionDetails;
+// }
+
+export function TransactionDetailsPopup({ isOpen, onClose, details }) {
+  return (
+    <Dialog open={isOpen} onOpenChange={onClose}>
+      <DialogContent className="sm:max-w-[425px]">
+        <DialogHeader>
+          <DialogTitle>Transaction Details</DialogTitle>
+          <DialogDescription>
+            Details of the current transaction
+          </DialogDescription>
+        </DialogHeader>
+        <ScrollArea className="mt-4 h-[300px] w-full rounded-md border p-4">
+          {Object.entries(details).map(([key, value]) => (
+            <div key={key} className="mb-2">
+              <strong>{key.charAt(0).toUpperCase() + key.slice(1)}:</strong> {JSON.stringify(value)}
+            </div>
+          ))}
+        </ScrollArea>
+      </DialogContent>
+    </Dialog>
+  );
+}
+
