@@ -51,9 +51,9 @@ export async function getERC20Balance(address: string, contractAddress: string) 
 }
 
 
-export async function getErc20Info() {
+// export async function getErc20Info() {
 
-}
+// }
 
 
 
@@ -78,7 +78,7 @@ export function getTokenContract(contractAddress: string) {
 
 export async function buildTransferERC20(contractAddress: string, receiver: string, amount: number, from: string) {
   const contract = getTokenDetailsByContract(contractAddress)
-  let decimalNumber = contract?.decimals || 18
+  const decimalNumber = contract?.decimals || 18
 
   // Parse the token amount to the correct unit (e.g., assuming 18 decimals)
   const tokenAmount = parseUnits(`${amount}`, decimalNumber)

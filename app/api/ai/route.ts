@@ -8,7 +8,7 @@ import { symbol, z } from "zod";
 import { SendTokenAgent, AssistantAgent } from "../../../agents";
 import { loadIntent } from "../../../lib/intents"
 import { ETHAddress, getTokenDetails } from "@/lib/utils";
-import { constructBundleRequest } from "@/lib/enso";
+import { constructBundleRequest, BundleAction } from "@/lib/enso";
 
 const swarm = new Swarm(process.env.OPEN_API_KEY);
 
@@ -49,13 +49,13 @@ export async function POST(request: NextRequest) {
         const actions = response.messages.filter((message) => message.tool_name && agents.includes(message.tool_name)).map((m) => ({ ...m, content: JSON.parse(m.content) }))
 
 
-        let actionExpand = []
-        let chain = data.chain
+        const actionExpand = []
+        const chain = data.chain
 
 
         for (const action of actions) {
             if (action.tool_name) {
-                let intent = agentIntent[action.tool_name]
+                const intent = agentIntent[action.tool_name]
 
                 let payload: { [x: string]: any } = {
                     type: intent
@@ -68,10 +68,10 @@ export async function POST(request: NextRequest) {
                         address: getTokenDetails(action.content.token, Number(chain))?.address
                     }
 
-                    let receiverAddress = new ETHAddress(action.content.receiver)
+                    const receiverAddress = new ETHAddress(action.content.receiver)
                     await receiverAddress.resolve()
 
-                    let receiver = receiverAddress.hex || action.content.receiver
+                    const receiver = receiverAddress.hex || action.content.receiver
                     payload = {
                         ...payload,
                         amount: action.content.amount,
@@ -95,9 +95,9 @@ export async function POST(request: NextRequest) {
                         to_token: tokenOut,
                     }
                 }
-                let txIntent = loadIntent({ ...payload })
+                const txIntent = loadIntent({ ...payload })
 
-                let txData = await txIntent.buildTransaction({ chain_id: Number(data.chain) }, data.account)
+                const txData = await txIntent.buildTransaction({ chain_id: Number(data.chain) }, data.account)
 
                 actionExpand.push({
                     ...action,
@@ -108,15 +108,16 @@ export async function POST(request: NextRequest) {
         }
 
 
-        let bundleList = actionExpand.map((a)=>({content: a.content, type: a.tool_name}))
+        const bundleList: { content: Record<string, string>; type: string | undefined }[] = actionExpand.map((a) => ({
+            content: a.content,
+            type: a.tool_name
+        }));
 
-        bundleList = constructBundleRequest(bundleList);
-
+        const bundleActions: BundleAction[] = constructBundleRequest(bundleList);
 
         const message = response.messages[response.messages.length - 1].content;
 
-
-        return NextResponse.json({ actions: actionExpand, message: message });
+        return NextResponse.json({ actions: actionExpand, message: message, bundleActions });
     } catch (error) {
         console.error("Error:", error);
         return NextResponse.json(

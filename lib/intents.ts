@@ -17,12 +17,18 @@ interface NetworkInfo {
     chain_id: number;
 }
 
-interface Transaction {
-    // Add transaction structure here as needed
-}
+// interface Transaction {
+//     // Add transaction structure here as needed
+// }
 
 interface TxParams {
-    // Add parameters for the transaction as needed
+    // If you don't have any specific parameters yet, you can use a more generic type
+    [key: string]: any;
+
+    // to?: string;
+    // value?: string;
+    // data?: string;
+    // // Add other known parameters
 }
 
 abstract class IntentBase {
@@ -56,11 +62,11 @@ class SendIntent extends IntentBase {
     async buildTransaction(network: NetworkInfo, smartWalletAddress: string) {
         let tx: TxParams;
 
-        let receiverAddress = new ETHAddress(this.receiver)
+        const receiverAddress = new ETHAddress(this.receiver)
 
         await receiverAddress.resolve()
 
-        let receiver = receiverAddress.hex || this.receiver
+        const receiver = receiverAddress.hex || this.receiver
 
         if (this.token.address === NATIVE_TOKEN_ADDRESS) {
             tx = buildTransferNative(smartWalletAddress, receiver, this.amount);
