@@ -39,7 +39,7 @@ export default function Main() {
       </div>
       <div className="footer">
         <div className="footer-text">Made with ❤️ by Keyless</div>
-        <img className="footer-image" src={isDarkMode ? "/image-dark.png" : "/image-light.png"} alt="dynamic" />
+        {/* <img className="footer-image" src={isDarkMode ? "/image-dark.png" : "/image-light.png"} alt="dynamic" /> */}
       </div>
     </div> 
   );

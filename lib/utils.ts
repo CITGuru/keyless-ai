@@ -1,6 +1,9 @@
-import { createPublicClient, http, parseUnits, checksumAddress, isAddress } from 'viem'
-import { mainnet, sepolia } from 'viem/chains'
+import { createPublicClient, http, checksumAddress, isAddress } from 'viem'
+import { mainnet } from 'viem/chains'
 import { ERC20_ABI } from './abi'
+
+import { clsx, type ClassValue } from "clsx"
+import { twMerge } from "tailwind-merge"
 
 // Create the viem client (mainnet, for example)
 const client = createPublicClient({
@@ -36,6 +39,11 @@ export async function getERC20Balance(address: string, contractAddress: string) 
 }
 
 
+export async function getErc20Info(){
+  
+}
+
+
 
 export class ETHAddress {
   hex?: `0x${string}`
@@ -47,7 +55,7 @@ export class ETHAddress {
   }
 
   async resolve() {
-    let address = this.originalStr
+    const address = this.originalStr
     if (address.endsWith('.eth')) {
       this.hex = await this.resolveENS(address)
       this.ensDomain = address
@@ -74,4 +82,8 @@ export class ETHAddress {
   toString(): string {
     return this.ensDomain ? `${this.ensDomain} (${this.hex || ''})` : this.hex || ''
   }
+}
+
+export function cn(...inputs: ClassValue[]) {
+  return twMerge(clsx(inputs))
 }
