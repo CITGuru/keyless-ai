@@ -8,11 +8,7 @@ import { symbol, z } from "zod";
 import { SendTokenAgent, AssistantAgent } from "../../../agents";
 import { loadIntent } from "../../../lib/intents"
 import { ETHAddress, getTokenDetails } from "@/lib/utils";
-<<<<<<< HEAD
 import { constructBundleRequest, triggerBundleRoute } from "@/lib/enso";
-=======
-import { constructBundleRequest } from "@/lib/enso";
->>>>>>> 23b45dcf56682f62578221fd93b083467ba5e244
 
 const swarm = new Swarm(process.env.OPEN_API_KEY);
 
@@ -96,13 +92,8 @@ export async function POST(request: NextRequest) {
                     payload = {
                         ...payload,
                         amount: action.content.amount,
-<<<<<<< HEAD
                         tokenIn: tokenIn,
                         tokenOut: tokenOut,
-=======
-                        from_token: tokenIn,
-                        to_token: tokenOut,
->>>>>>> 23b45dcf56682f62578221fd93b083467ba5e244
                     }
                 }
                 let txIntent = loadIntent({ ...payload })
@@ -111,39 +102,16 @@ export async function POST(request: NextRequest) {
 
                 actionExpand.push({
                     ...action,
-<<<<<<< HEAD
                     txData,
                     resolved: payload
-=======
-                    txData
->>>>>>> 23b45dcf56682f62578221fd93b083467ba5e244
                 })
 
             }
         }
 
-
-<<<<<<< HEAD
-        let bundleList: any = actionExpand.map((a)=>({content: a.resolved, type: a.tool_name}))
-
-        bundleList = await constructBundleRequest(bundleList);
-
-        const bundleTx = await triggerBundleRoute({ chainId: Number(chain), fromAddress: data.account}, bundleList)
-=======
-        let bundleList = actionExpand.map((a)=>({content: a.content, type: a.tool_name}))
-
-        bundleList = constructBundleRequest(bundleList);
->>>>>>> 23b45dcf56682f62578221fd93b083467ba5e244
-
-
         const message = response.messages[response.messages.length - 1].content;
 
-
-<<<<<<< HEAD
-        return NextResponse.json({ actions: actionExpand, message: message, bundleTx });
-=======
         return NextResponse.json({ actions: actionExpand, message: message });
->>>>>>> 23b45dcf56682f62578221fd93b083467ba5e244
     } catch (error) {
         console.error("Error:", error);
         return NextResponse.json(
