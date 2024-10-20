@@ -1,6 +1,6 @@
 import { parseEther, parseUnits } from "viem";
 import { NATIVE_TOKEN_ADDRESS } from "./constants";
-import { buildTransferERC20, buildTransferNative, ETHAddress, getTokenContract, getTokenDetails, getTokenDetailsByContract } from "./utils";
+import { buildTransferERC20, buildTransferNative, ETHAddress, getTokenDetailsByContract } from "./utils";
 import { triggerSwapRoute } from "./enso";
 
 enum IntentType {
