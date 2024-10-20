@@ -26,6 +26,13 @@ export default function DynamicMethods({ isDarkMode }) {
     const [lastApiRequest, setLastApiRequest] = useState(null);
     const [lastApiResponse, setLastApiResponse] = useState(null);
     const [currentTxData, setCurrentTxData] = useState(null);
+    const [storedActions, setStoredActions] = useState([]);
+    const [isBatching, setIsBatching] = useState(false);
+
+    // Function to check if there are multiple actions with txData
+    const hasMultipleTxData = () => {
+        return storedActions.filter(action => action.txData).length > 1;
+    };
 
     const previewButtons = [
         { text: "Swap 10.0 USDC to ETH", action: () => handleSubmit("Swap 10.0 USDC to ETH") },
@@ -95,11 +102,115 @@ export default function DynamicMethods({ isDarkMode }) {
             }
 
             setLastApiResponse(data);
+            // Store the actions
+            setStoredActions(prevActions => [...prevActions, ...data.actions]);
             // Return both the message and actions
             return { message: data.message, actions: data.actions };
         } catch (error) {
             console.error('Error:', error);
             throw error;
+        }
+    };
+
+    // Function to call the batching endpoint (NEEDS WORK)
+    const callBatchingEndpoint = async () => {
+        const actionsWithTxData = storedActions.filter(action => action.txData);
+        if (actionsWithTxData.length <= 1) {
+            console.log('Not enough actions to batch');
+            return;
+        }
+
+        const chain = (await primaryWallet.connector.getNetwork()).toString();
+
+        setIsBatching(true);
+
+        try {
+            // Prepare the bundle data
+            const bundle = actionsWithTxData.map(action => {
+                const baseAction = {
+                    type: action.resolved.type,
+                    tool: action.tool_name,
+                    amount: parseFloat(action.content.amount), // Ensure amount is a number
+                };
+
+                if (action.resolved.type === 'swap') {
+                    return {
+                        ...baseAction,
+                        tokenIn: {
+                            symbol: action.resolved.tokenIn.symbol,
+                            address: action.resolved.tokenIn.address,
+                        },
+                        tokenOut: {
+                            symbol: action.resolved.tokenOut.symbol,
+                            address: action.resolved.tokenOut.address,
+                        },
+                    };
+                } else if (action.resolved.type === 'send') {
+                    return {
+                        ...baseAction,
+                        receiver: action.content.receiver,
+                        token: {
+                            symbol: action.resolved.token.symbol,
+                            address: action.resolved.token.address,
+                        },
+                    };
+                }
+
+                return baseAction; // Fallback for any other action types
+            });
+
+            // Prepare the request body
+            const requestBody = {
+                account: primaryWallet.address,
+                chain: chain,
+                bundle: bundle
+            };
+
+            console.log('Request body:', JSON.stringify(requestBody, null, 2));
+
+            const response = await fetch('/api/enso', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(requestBody),
+            });
+
+            if (!response.ok) {
+                throw new Error('Batching request failed');
+            }
+
+            const data = await response.json();
+            console.log('Batching response:', data);
+
+            // Handle the batching response as needed
+            // For example, you might want to trigger a transaction signing here
+            // or update the UI to show the batched transaction details
+
+            const wallet = await primaryWallet.getWalletClient(chain);
+            
+            // Include the chain information from lastApiRequest
+            // const chain = (await primaryWallet.connector.getNetwork()).toString();
+            console.log('chain', chain);
+            const bundleHash = await wallet.sendTransaction({
+                to,
+                data,
+                from,
+                value
+            });
+
+            // Clear the stored actions after successful batching
+            setStoredActions([]);
+
+            // Optionally, you can update the UI to show the batching was successful
+            // setIsBatchingSuccessful(true);
+
+        } catch (error) {
+            console.error('Error in batching:', error);
+            // Optionally, you can update the UI to show the error
+            // setIsBatchingError(error.message);
+        } finally {
+            setIsBatching(false);
         }
     };
 
@@ -197,6 +308,7 @@ export default function DynamicMethods({ isDarkMode }) {
                                         onSubmit={handleSubmit}
                                         onSignatureRequest={handleSignatureRequest}
                                         onViewTransaction={handleViewTransaction}
+                                        storedActions={storedActions}
                                     />
                                     <SignaturePopup
                                         isOpen={isSignaturePopupOpen}
@@ -208,6 +320,12 @@ export default function DynamicMethods({ isDarkMode }) {
                                         onClose={() => setIsTransactionDetailsOpen(false)}
                                         details={transactionDetails}
                                     />
+                                    {/* Only show the Batch Signings button if there are multiple actions with txData */}
+                                    {hasMultipleTxData() && (
+                                        <button onClick={callBatchingEndpoint} className="mt-4 px-4 py-2 bg-blue-500 text-white rounded">
+                                            Batch Signings
+                                        </button>
+                                    )}
                                 </div>
                             
                             </div>  
@@ -270,4 +388,6 @@ export function TransactionDetailsPopup({ isOpen, onClose, details }) {
     </Dialog>
   );
 }
+
+
 

@@ -25,11 +25,13 @@ export default function CustomChatbot({
   onSubmit,
   onSignatureRequest,
   onViewTransaction,
+  storedActions,
 }: {
   previewButtons?: PreviewButton[]
   onSubmit: (message: string) => Promise<{ message: string, actions: any[] }>
   onSignatureRequest: (txData: any) => Promise<string>
   onViewTransaction: (txData: any) => void
+  storedActions: any[]
 }) {
   const [messages, setMessages] = useState<Message[]>([])
   const [input, setInput] = useState('')
