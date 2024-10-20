@@ -7,7 +7,7 @@ import { Input } from '@/components/ui/input'
 import { ScrollArea } from '@/components/ui/scroll-area'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Card, CardContent } from '@/components/ui/card'
-import { SendIcon, UserIcon, EyeIcon, PenIcon } from 'lucide-react'
+import { SendIcon, UserIcon, EyeIcon, PenIcon, PackageIcon } from 'lucide-react'
 
 type Message = {
   role: 'user' | 'assistant' | 'system'
@@ -25,11 +25,13 @@ export default function CustomChatbot({
   onSubmit,
   onSignatureRequest,
   onViewTransaction,
+  onBundleSigning,
 }: {
   previewButtons?: PreviewButton[]
   onSubmit: (message: string) => Promise<{ message: string, actions: any[] }>
   onSignatureRequest: (txData: any) => Promise<string>
   onViewTransaction: (txData: any) => void
+  onBundleSigning: () => void
 }) {
   const [messages, setMessages] = useState<Message[]>([])
   const [input, setInput] = useState('')
@@ -109,6 +111,13 @@ export default function CustomChatbot({
                       </div>
                     </div>
                   ))}
+                  {message.actions && message.actions.length > 1 && (
+                    <div className="mt-4">
+                      <Button onClick={onBundleSigning}>
+                        <PackageIcon className="w-4 h-4 mr-2" /> Bundle Signing
+                      </Button>
+                    </div>
+                  )}
                 </div>
               </div>
             </div>

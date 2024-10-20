@@ -26,6 +26,9 @@ export default function DynamicMethods({ isDarkMode }) {
     const [lastApiRequest, setLastApiRequest] = useState(null);
     const [lastApiResponse, setLastApiResponse] = useState(null);
     const [currentTxData, setCurrentTxData] = useState(null);
+    const [bundleTx, setBundleTx] = useState(null);
+    const [isBatching, setIsBatching] = useState(false);
+    const [storedActions, setStoredActions] = useState([]);
 
     const previewButtons = [
         { text: "Swap 10.0 USDC to ETH", action: () => handleSubmit("Swap 10.0 USDC to ETH") },
@@ -95,6 +98,9 @@ export default function DynamicMethods({ isDarkMode }) {
             }
 
             setLastApiResponse(data);
+            // Store the actions and bundleTx
+            setStoredActions(data.actions);
+            setBundleTx(data.bundleTx); // Assuming the API returns a bundleTx object
             // Return both the message and actions
             return { message: data.message, actions: data.actions };
         } catch (error) {
@@ -178,6 +184,47 @@ export default function DynamicMethods({ isDarkMode }) {
     }
 
 
+    const callBatchingEndpoint = async () => {
+        if (!bundleTx) {
+            console.error('No bundle transaction data available');
+            return;
+        }
+
+        setIsBatching(true);
+
+        try {
+            const chain = (await primaryWallet.connector.getNetwork()).toString();
+            const wallet = await primaryWallet.getWalletClient(chain);
+            const { to, data, from, value } = bundleTx;
+            
+            console.log('Sending bundle transaction:', { to, data, from, value });
+
+            const txHash = await wallet.sendTransaction({
+                to,
+                data,
+                from,
+                value
+            });
+
+            console.log('Bundle transaction sent:', txHash);
+            // You might want to update the UI to show the transaction was sent successfully
+            // For example:
+            // setTransactionStatus('Bundle transaction sent successfully');
+            // setTransactionHash(txHash);
+
+            // Clear the stored actions and bundleTx after successful transaction
+            setStoredActions([]);
+            setBundleTx(null);
+
+        } catch (error) {
+            console.error('Error signing bundle transaction:', error);
+            // Handle the error (e.g., show an error message to the user)
+            // setTransactionStatus('Error sending bundle transaction: ' + error.message);
+        } finally {
+            setIsBatching(false);
+        }
+    };
+
     return (
         <>
             {!isLoading && (
@@ -197,6 +244,8 @@ export default function DynamicMethods({ isDarkMode }) {
                                         onSubmit={handleSubmit}
                                         onSignatureRequest={handleSignatureRequest}
                                         onViewTransaction={handleViewTransaction}
+                                        onBundleSigning={callBatchingEndpoint}
+                                        storedActions={storedActions}
                                     />
                                     <SignaturePopup
                                         isOpen={isSignaturePopupOpen}
@@ -270,4 +319,5 @@ export function TransactionDetailsPopup({ isOpen, onClose, details }) {
     </Dialog>
   );
 }
+
 
