@@ -1,15 +1,27 @@
-import { createPublicClient, http, checksumAddress, isAddress } from 'viem'
+import { createPublicClient, http, checksumAddress, isAddress, createWalletClient, parseEther, getContract, parseUnits, encodeFunctionData } from 'viem'
 import { mainnet } from 'viem/chains'
 import { ERC20_ABI } from './abi'
 
 import { clsx, type ClassValue } from "clsx"
 import { twMerge } from "tailwind-merge"
+import { token_list } from './tokens'
 
 // Create the viem client (mainnet, for example)
 const client = createPublicClient({
   chain: mainnet,
   transport: http(),
 })
+
+
+
+export const createAccountWalletClient = (address: string, chain: string) => {
+  const client = createWalletClient({
+    account: `0x${address}`,
+    chain: mainnet,
+    transport: http(),
+  })
+  return client
+}
 
 // Fetch Native Balance
 export async function getNativeBalance(address: string) {
@@ -39,8 +51,51 @@ export async function getERC20Balance(address: string, contractAddress: string) 
 }
 
 
-export async function getErc20Info(){
-  
+export async function getErc20Info() {
+
+}
+
+
+
+export function buildTransferNative(from: string, receiver: string, amount: number) {
+  return {
+    to: receiver,
+    value: parseEther(amount.toString()), // Convert amount to wei
+    from: from
+  };
+}
+
+
+export function getTokenContract(contractAddress: string) {
+  const contract = getContract({
+    address: `0x${contractAddress}`,
+    abi: ERC20_ABI,
+    client: client,
+  })
+
+  return contract
+}
+
+export async function buildTransferERC20(contractAddress: string, receiver: string, amount: number, from: string) {
+  const contract = getTokenDetailsByContract(contractAddress)
+  let decimalNumber = contract?.decimals || 18
+
+  // Parse the token amount to the correct unit (e.g., assuming 18 decimals)
+  const tokenAmount = parseUnits(`${amount}`, decimalNumber)
+
+  // Encode the function data for the ERC-20 transfer
+  const data = encodeFunctionData({
+    abi: ERC20_ABI,
+    functionName: 'transfer',
+    args: [receiver, tokenAmount],
+  })
+
+  return {
+    to: contractAddress,
+    data: data,
+    from: from,
+    value: 0
+  };
 }
 
 
@@ -86,4 +141,17 @@ export class ETHAddress {
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs))
+}
+
+
+
+export const getTokenDetails =(symbol: string, chainId: number)=>{
+   const token = token_list.find((t)=> t.symbol == symbol && chainId == t.chainId)
+   console.log(symbol, chainId)
+   return token
+}
+
+export const getTokenDetailsByContract =(contractAddress: string)=>{
+  const token = token_list.find((t)=> t.address.toLowerCase()==contractAddress.toLowerCase())
+  return token
 }

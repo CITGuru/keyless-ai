@@ -22,7 +22,7 @@ const prepareSwapTransaction: AgentFunction = {
         description: "The token to swap to",
       },
       amount: {
-        type: "string",
+        type: "number",
         required: true,
         description: "The value of token to swap from",
       },
@@ -87,7 +87,7 @@ export const SwapTokenAgent = new Agent({
     Above are examples, NOTE these are only examples and in practice you need to call the prepareSwapTransaction tool with the correct arguments.
     Take extra care in ensuring you have to right amount next to the token symbol. NEVER use more than one amount per swap, the other amount will be calculated for you.
     The swaps are NOT NECESSARILY correlated, focus on the exact amounts the user wants to buy or sell (leave the other amounts to be calculated for you).
-    You rely on the other agents to provide the token to buy or sell. Never make up a token. Unless explicitly given the name of the token, ask the 'research-tokens' agent to first search for the token.
+    You rely on the other agents to provide the token to buy or sell. Never make up a token.
     Only call tools, do not respond with JSON.
   `,
   model: "gpt-4o",

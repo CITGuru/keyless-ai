@@ -9,7 +9,7 @@ import './Methods.css';
 
 export default function DynamicMethods({ isDarkMode }) {
     const isLoggedIn = useIsLoggedIn();
-    const { sdkHasLoaded, primaryWallet, user } = useDynamicContext();
+    const { sdkHasLoaded, primaryWallet, user, } = useDynamicContext();
     const userWallets = useUserWallets();
     const [isLoading, setIsLoading] = useState(true);
     const [result, setResult] = useState('');
@@ -109,12 +109,23 @@ export default function DynamicMethods({ isDarkMode }) {
     }
 
 
+    async function signTransaction() {
+        if (!primaryWallet || !isEthereumWallet(primaryWallet)) return;
+
+        const wallet = await primaryWallet.getWalletClient();
+        wallet.sendTransaction({to: "0xd8da6bf26964af9d7eed9e03e53415d37aa96045", value: "10000"})
+
+        // setResult(signature);
+    }
+
 
     return (
         <>
             {!isLoading && (
                 <div className="dynamic-methods" data-theme={isDarkMode ? 'dark' : 'light'}>
                     <div className="methods-container">
+
+                    <button className="btn btn-primary" onClick={signTransaction}>Sign Transaction</button>
                         {/* <button className="btn btn-primary" onClick={showUser}>Fetch User</button>
                         <button className="btn btn-primary" onClick={showUserWallets}>Fetch User Wallets</button> */}
 
