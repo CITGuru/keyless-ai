@@ -12,7 +12,7 @@ import { SendIcon, UserIcon, EyeIcon, PenIcon } from 'lucide-react'
 type Message = {
   role: 'user' | 'assistant' | 'system'
   content: string
-  showButtons?: boolean
+  actions?: any[]
 }
 
 type PreviewButton = {
@@ -27,9 +27,9 @@ export default function CustomChatbot({
   onViewTransaction,
 }: {
   previewButtons?: PreviewButton[]
-  onSubmit: (message: string) => Promise<string>
-  onSignatureRequest: () => Promise<string>
-  onViewTransaction: () => void
+  onSubmit: (message: string) => Promise<{ message: string, actions: any[] }>
+  onSignatureRequest: (toolCallId: string) => Promise<string>
+  onViewTransaction: (txData: any) => void
 }) {
   const [messages, setMessages] = useState<Message[]>([])
   const [input, setInput] = useState('')
@@ -58,17 +58,10 @@ export default function CustomChatbot({
       if (response) {
         const botMessage: Message = { 
           role: 'assistant', 
-          content: response,
-          showButtons: true // Add this flag to show buttons
+          content: response.message,
+          actions: response.actions
         }
         setMessages(prev => [...prev, botMessage])
-
-        // Check if we need to request a signature
-        // if (response.includes('[SIGNATURE_REQUIRED]')) {
-        //   const signature = await onSignatureRequest()
-        //   const signatureMessage: Message = { role: 'system', content: `Signature received: ${signature}` }
-        //   setMessages(prev => [...prev, signatureMessage])
-        // }
       }
     } catch (error) {
       console.error('Error in chat submission:', error)
@@ -102,17 +95,20 @@ export default function CustomChatbot({
                   <AvatarImage src={message.role === 'user' ? '/user-avatar.png' : '/assistant-avatar.png'} />
                 </Avatar>
                 <div className={`mx-2 p-3 rounded-lg ${message.role === 'user' ? 'bg-primary text-primary-foreground' : 'bg-muted'}`}>
-                  {message.content}
-                  {message.showButtons && (
-                    <div className="mt-2 flex space-x-2">
-                      <Button size="sm" onClick={onViewTransaction}>
-                        <EyeIcon className="w-4 h-4 mr-2" /> View
-                      </Button>
-                      <Button size="sm" onClick={onSignatureRequest}>
-                        <PenIcon className="w-4 h-4 mr-2" /> Sign
-                      </Button>
+                  <div>{message.content}</div>
+                  {message.actions && message.actions.map((action, actionIndex) => (
+                    <div key={actionIndex} className="mt-2">
+                      <div className="text-sm font-semibold">Action: {action.tool_name}</div>
+                      <div className="flex space-x-2 mt-1">
+                        <Button size="sm" onClick={() => onViewTransaction(action.txData)}>
+                          <EyeIcon className="w-4 h-4 mr-2" /> View
+                        </Button>
+                        <Button size="sm" onClick={() => onSignatureRequest(action.tool_call_id)}>
+                          <PenIcon className="w-4 h-4 mr-2" /> Sign
+                        </Button>
+                      </div>
                     </div>
-                  )}
+                  ))}
                 </div>
               </div>
             </div>
