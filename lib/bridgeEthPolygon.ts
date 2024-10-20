@@ -9,8 +9,6 @@ export const constructBridgeTransaction = async (
     destinationAddress: string,
     tokenAddress: string,
     tokenAmount: bigint,
-    privateKey: string,
-    unifiedBridgeContractAddress: string
 ) => {
     const destinationNetworkId = 1;
     const forceUpdateGlobalExitRoot = true;
@@ -30,5 +28,9 @@ export const constructBridgeTransaction = async (
         ],
     });
 
-    return data
+    return {
+        to: unifiedBridgeContractAddress,
+        data,
+        value: 0
+    }
 }
