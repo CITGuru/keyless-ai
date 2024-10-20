@@ -1,6 +1,6 @@
-import { parseEther } from "viem";
+import { parseEther, parseUnits } from "viem";
 import { NATIVE_TOKEN_ADDRESS } from "./constants";
-import { buildTransferERC20, buildTransferNative, ETHAddress } from "./utils";
+import { buildTransferERC20, buildTransferNative, ETHAddress, getTokenContract, getTokenDetails, getTokenDetailsByContract } from "./utils";
 import { triggerSwapRoute } from "./enso";
 
 enum IntentType {
@@ -90,8 +90,13 @@ class SwapIntent extends IntentBase {
     }
 
     async buildTransaction(network: NetworkInfo, fromAddress: string) {
+        let token = getTokenDetailsByContract(this.fromToken.address)
 
-        const req = await triggerSwapRoute({ fromAddress: fromAddress, chainId: network.chain_id, tokenIn: this.fromToken.address, tokenOut: this.toToken.address, amountIn: this.amount })
+        let decimal = token?.decimals || 18
+
+        let amount = parseUnits(this.amount.toString(), decimal)
+
+        const req = await triggerSwapRoute({ fromAddress: fromAddress, chainId: network.chain_id, tokenIn: this.fromToken.address, tokenOut: this.toToken.address, amountIn: amount.toString()})
         return req
 
     }
@@ -114,12 +119,12 @@ export function loadIntent(intentData: Record<string, any>): Intent {
         case IntentType.SWAP:
             return SwapIntent.create(
                 {
-                    symbol: intentData.from_token.symbol,
-                    address: intentData.from_token.address,
+                    symbol: intentData.tokenIn.symbol,
+                    address: intentData.tokenIn.address,
                 },
                 {
-                    symbol: intentData.to_token.symbol,
-                    address: intentData.to_token.address,
+                    symbol: intentData.tokenOut.symbol,
+                    address: intentData.tokenOut.address,
                 },
                 intentData.amount
             );

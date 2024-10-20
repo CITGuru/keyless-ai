@@ -8,7 +8,7 @@ import { symbol, z } from "zod";
 import { SendTokenAgent, AssistantAgent } from "../../../agents";
 import { loadIntent } from "../../../lib/intents"
 import { ETHAddress, getTokenDetails } from "@/lib/utils";
-import { constructBundleRequest } from "@/lib/enso";
+import { constructBundleRequest, triggerBundleRoute } from "@/lib/enso";
 
 const swarm = new Swarm(process.env.OPEN_API_KEY);
 
@@ -58,7 +58,8 @@ export async function POST(request: NextRequest) {
                 let intent = agentIntent[action.tool_name]
 
                 let payload: { [x: string]: any } = {
-                    type: intent
+                    type: intent,
+                    tool: action.tool_name
                 }
 
 
@@ -91,8 +92,8 @@ export async function POST(request: NextRequest) {
                     payload = {
                         ...payload,
                         amount: action.content.amount,
-                        from_token: tokenIn,
-                        to_token: tokenOut,
+                        tokenIn: tokenIn,
+                        tokenOut: tokenOut,
                     }
                 }
                 let txIntent = loadIntent({ ...payload })
@@ -101,22 +102,25 @@ export async function POST(request: NextRequest) {
 
                 actionExpand.push({
                     ...action,
-                    txData
+                    txData,
+                    resolved: payload
                 })
 
             }
         }
 
 
-        let bundleList = actionExpand.map((a)=>({content: a.content, type: a.tool_name}))
+        let bundleList: any = actionExpand.map((a)=>({content: a.resolved, type: a.tool_name}))
 
-        bundleList = constructBundleRequest(bundleList);
+        bundleList = await constructBundleRequest(bundleList);
+
+        const bundleTx = await triggerBundleRoute({ chainId: Number(chain), fromAddress: data.account}, bundleList)
 
 
         const message = response.messages[response.messages.length - 1].content;
 
 
-        return NextResponse.json({ actions: actionExpand, message: message });
+        return NextResponse.json({ actions: actionExpand, message: message, bundleTx });
     } catch (error) {
         console.error("Error:", error);
         return NextResponse.json(
