@@ -1,17 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
 // Initialize Swarm with your API key
-import {
-    Swarm
-} from "@pluralityai/agents";
-import { symbol, z } from "zod";
+import { z } from "zod";
 
-import { SendTokenAgent, AssistantAgent } from "../../../agents";
-import { loadIntent } from "../../../lib/intents"
-import { ETHAddress, getTokenDetails } from "@/lib/utils";
 import { constructBundleRequest, triggerBundleRoute } from "@/lib/enso";
-import { TokensIcon } from "@radix-ui/react-icons";
 
-const swarm = new Swarm(process.env.OPEN_API_KEY);
 
 export async function GET() {
 
@@ -43,9 +35,10 @@ const Schema = z.object({
 export async function POST(request: NextRequest) {
     const body = await request.json();
     const data = Schema.parse(body)
-    const { chain, account, bundle } = data
+    const { chain, bundle } = data
     try {
 
+        // eslint-disable-next-line
         let bundleList: any = bundle.map((a) => ({ content: a, type: a.tool }))
 
         bundleList = await constructBundleRequest(bundleList);

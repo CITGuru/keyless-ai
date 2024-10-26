@@ -46,7 +46,7 @@ export const constructSwapAction = (tokenIn: string, tokenOut: string, amount: s
     };
 };
 
-
+// eslint-disable-next-line
 export const constructBundleRequest = async (actions: { type?: string, content: { [x: string]: any } }[]): Promise<BundleItem[]> => {
     const bundleList: BundleItem[] = []
 
@@ -76,6 +76,7 @@ export const constructBundleRequest = async (actions: { type?: string, content: 
     return bundleList
 }
 
+// eslint-disable-next-line
 export const triggerBundleRoute = async (query: { chainId: number, fromAddress: string }, body: { protocol: string, action: string, args: any }[]): Promise<BundleItem[]> => {
     const req = await EnsoAgent.post("/shortcuts/bundle", body, {
         params: {

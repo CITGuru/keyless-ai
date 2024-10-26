@@ -1,7 +1,6 @@
 import React from 'react'
 import { useState } from 'react'
 import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog'
 
 export default function SignaturePopup({ isOpen, onClose, onSign }: {

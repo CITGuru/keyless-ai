@@ -1,4 +1,4 @@
-import { parseEther, parseUnits } from "viem";
+import { parseUnits } from "viem";
 import { NATIVE_TOKEN_ADDRESS } from "./constants";
 import { buildTransferERC20, buildTransferNative, ETHAddress, getTokenDetailsByContract } from "./utils";
 import { triggerSwapRoute } from "./enso";
@@ -33,7 +33,7 @@ abstract class IntentBase {
         this.type = type;
         this.summary = summary;
     }
-
+     // eslint-disable-next-line
     abstract buildTransaction(network: Chain, smartWalletAddress: string): any;
 }
 
@@ -137,7 +137,7 @@ class BridgeIntent extends IntentBase {
 
 
 type Intent = SendIntent | SwapIntent | BridgeIntent
-
+// eslint-disable-next-line
 export function loadIntent(intentData: Record<string, any>): Intent {
     switch (intentData.type) {
         case IntentType.SEND:

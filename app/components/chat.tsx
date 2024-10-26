@@ -6,7 +6,7 @@ import { Input } from '@/components/ui/input'
 import { ScrollArea } from '@/components/ui/scroll-area'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Card, CardContent } from '@/components/ui/card'
-import { SendIcon, UserIcon } from 'lucide-react'
+import { SendIcon } from 'lucide-react'
 
 type Message = {
   role: 'user' | 'assistant' | 'system'
@@ -38,6 +38,8 @@ export default function CustomChatbot({
     }
   }, [messages])
 
+
+  // eslint-disable-next-line
   const handleSubmit = async (e: React.FormEvent) => {
     if (input.trim() === '') return
 

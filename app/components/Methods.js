@@ -1,6 +1,6 @@
 'use client';
 import { useState, useEffect } from 'react';
-import { useDynamicContext, useIsLoggedIn, useUserWallets } from "@dynamic-labs/sdk-react-core";
+import { useDynamicContext, useIsLoggedIn } from "@dynamic-labs/sdk-react-core";
 import { isEthereumWallet } from '@dynamic-labs/ethereum'
 import CustomChatbot from './custom-chatbot'
 import SignaturePopup from './signature-popup'
@@ -13,21 +13,17 @@ import './Methods.css';
 
 export default function DynamicMethods({ isDarkMode }) {
     const isLoggedIn = useIsLoggedIn();
-    const { sdkHasLoaded, primaryWallet, user, } = useDynamicContext();
-    const userWallets = useUserWallets();
+    const { sdkHasLoaded, primaryWallet } = useDynamicContext();
     const [isLoading, setIsLoading] = useState(true);
     const [result, setResult] = useState('');
-    const [messages, setMessages] = useState([]);
-    const [input, setInput] = useState('');
     const [isSignaturePopupOpen, setIsSignaturePopupOpen] = useState(false);
-    const [signatureResolver, setSignatureResolver] = useState(null);
     const [isTransactionDetailsOpen, setIsTransactionDetailsOpen] = useState(false);
     const [transactionDetails, setTransactionDetails] = useState({});
-    const [lastApiRequest, setLastApiRequest] = useState(null);
-    const [lastApiResponse, setLastApiResponse] = useState(null);
+    const [ setLastApiRequest] = useState(null);
+    const [ setLastApiResponse] = useState(null);
     const [currentTxData, setCurrentTxData] = useState(null);
     const [bundleTx, setBundleTx] = useState(null);
-    const [isBatching, setIsBatching] = useState(false);
+    const [setIsBatching] = useState(false);
     const [storedActions, setStoredActions] = useState([]);
 
     const previewButtons = [
@@ -114,18 +110,18 @@ export default function DynamicMethods({ isDarkMode }) {
         setIsTransactionDetailsOpen(true);
     };
 
-    const safeStringify = (obj) => {
-        const seen = new WeakSet();
-        return JSON.stringify(obj, (key, value) => {
-            if (typeof value === 'object' && value !== null) {
-                if (seen.has(value)) {
-                    return '[Circular]';
-                }
-                seen.add(value);
-            }
-            return value;
-        }, 2);
-    };
+    // const safeStringify = (obj) => {
+    //     const seen = new WeakSet();
+    //     return JSON.stringify(obj, (key, value) => {
+    //         if (typeof value === 'object' && value !== null) {
+    //             if (seen.has(value)) {
+    //                 return '[Circular]';
+    //             }
+    //             seen.add(value);
+    //         }
+    //         return value;
+    //     }, 2);
+    // };
 
     useEffect(() => {
         if (sdkHasLoaded && isLoggedIn && primaryWallet) {
@@ -136,23 +132,6 @@ export default function DynamicMethods({ isDarkMode }) {
     function clearResult() {
         setResult('');
     }
-
-
-    async function fetchPublicClient() {
-        if (!primaryWallet || !isEthereumWallet(primaryWallet)) return;
-
-        const publicClient = await primaryWallet.getPublicClient();
-        setResult(safeStringify(publicClient));
-    }
-
-    async function fetchWalletClient() {
-        if (!primaryWallet || !isEthereumWallet(primaryWallet)) return;
-
-        const walletClient = await primaryWallet.getWalletClient();
-        setResult(safeStringify(walletClient));
-    }
-
-
 
 
     const callBatchingEndpoint = async () => {

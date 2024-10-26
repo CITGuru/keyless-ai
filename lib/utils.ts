@@ -15,10 +15,11 @@ const client = createPublicClient({
 
 
 
-export const createAccountWalletClient = (address: string, chain: string) => {
+// eslint-disable-next-line
+export const createAccountWalletClient = (address: string, chain: any = mainnet) => {
   const client = createWalletClient({
     account: `0x${address}`,
-    chain: mainnet,
+    chain: chain,
     transport: http(),
   })
   return client
@@ -147,12 +148,10 @@ export function cn(...inputs: ClassValue[]) {
 
 export const getTokenDetails = (symbol: string, chainId: number) => {
   const token = token_list.find((t) => t.symbol == symbol && chainId == t.chainId)
-  console.log(symbol, chainId)
   return token
 }
 
 export const getTokenDetailsByContract = (contractAddress: string) => {
-  console.log(contractAddress, "Contract Address")
   const token = token_list.find((t) => t.address?.toLowerCase() == contractAddress?.toLowerCase())
   return token
 }

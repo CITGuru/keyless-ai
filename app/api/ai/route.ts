@@ -3,9 +3,9 @@ import { NextRequest, NextResponse } from "next/server";
 import {
     Swarm
 } from "@pluralityai/agents";
-import { symbol, z } from "zod";
+import { z } from "zod";
 
-import { SendTokenAgent, AssistantAgent } from "../../../agents";
+import { SendTokenAgent } from "../../../agents";
 import { loadIntent } from "../../../lib/intents"
 import { ETHAddress, getChainByName, getTokenDetails } from "@/lib/utils";
 import { constructBundleRequest, triggerBundleRoute } from "@/lib/enso";
@@ -28,7 +28,7 @@ const Schema = z.object({
 
 
 const agents = ["prepareTransaction", "prepareSwapTransaction", "prepareBridgeTransaction"]
-const agentIntent: any = {
+const agentIntent: { [x: string]: string} = {
     "prepareTransaction": "send",
     "prepareSwapTransaction": "swap",
     "prepareBridgeTransaction": "bridge"
@@ -42,7 +42,7 @@ export async function POST(request: NextRequest) {
 
     try {
 
-        let agent = SendTokenAgent
+        const agent = SendTokenAgent
         const response = await swarm.run({
             agent: agent,
             messages,
@@ -60,6 +60,7 @@ export async function POST(request: NextRequest) {
             if (action.tool_name) {
                 const intent = agentIntent[action.tool_name]
 
+                // eslint-disable-next-line
                 let payload: { [x: string]: any } = {
                     type: intent,
                     tool: action.tool_name
@@ -101,7 +102,7 @@ export async function POST(request: NextRequest) {
                 }
                 else if (action.tool_name == "prepareBridgeTransaction") {
 
-                    let _chain = getChainByName(action.content.fromChain)?.chainId
+                    const _chain = getChainByName(action.content.fromChain)?.chainId
 
                     const fromChain = {
                         name: action.content.fromChain,
@@ -139,7 +140,7 @@ export async function POST(request: NextRequest) {
             }
         }
 
-
+        // eslint-disable-next-line
         let bundleList: any = actionExpand.map((a) => ({ content: a.resolved, type: a.tool_name }))
 
         bundleList = await constructBundleRequest(bundleList);

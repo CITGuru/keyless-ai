@@ -1,4 +1,4 @@
-import { createPublicClient, http, encodeFunctionData } from 'viem';
+import { encodeFunctionData } from 'viem';
 import { UNIFIED_BRIDGE } from './abi';
 
 export const unifiedBridgeContractAddress =
