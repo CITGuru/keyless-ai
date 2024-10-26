@@ -124,7 +124,6 @@ export async function POST(request: NextRequest) {
                     }
 
 
-                    console.log(payload, "bridge")
                 }
 
                 const txIntent = loadIntent({ ...payload })

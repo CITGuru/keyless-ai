@@ -74,6 +74,10 @@ export function getTokenContract(contractAddress: string) {
 
 export async function buildTransferERC20(contractAddress: string, receiver: string, amount: number, from: string) {
   const contract = getTokenDetailsByContract(contractAddress)
+  if (!contract) {
+    throw new Error("Can't find the specified token address")
+  }
+
   const decimalNumber = contract?.decimals || 18
 
   // Parse the token amount to the correct unit (e.g., assuming 18 decimals)
@@ -141,18 +145,19 @@ export function cn(...inputs: ClassValue[]) {
 
 
 
-export const getTokenDetails =(symbol: string, chainId: number)=>{
-   const token = token_list.find((t)=> t.symbol == symbol && chainId == t.chainId)
-   console.log(symbol, chainId)
-   return token
-}
-
-export const getTokenDetailsByContract =(contractAddress: string)=>{
-  const token = token_list.find((t)=> t.address.toLowerCase()==contractAddress.toLowerCase())
+export const getTokenDetails = (symbol: string, chainId: number) => {
+  const token = token_list.find((t) => t.symbol == symbol && chainId == t.chainId)
+  console.log(symbol, chainId)
   return token
 }
 
-export const getChainByName =(name: string)=>{
-  const chain = chainlist.find((t)=> t.name.toLowerCase() == name?.toLowerCase())
+export const getTokenDetailsByContract = (contractAddress: string) => {
+  console.log(contractAddress, "Contract Address")
+  const token = token_list.find((t) => t.address?.toLowerCase() == contractAddress?.toLowerCase())
+  return token
+}
+
+export const getChainByName = (name: string) => {
+  const chain = chainlist.find((t) => t.name?.toLowerCase() == name?.toLowerCase())
   return chain
 }
