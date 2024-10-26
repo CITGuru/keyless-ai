@@ -31386,6 +31386,14 @@ export const token_list = [
         "logoURI": "https://assets.coingecko.com/coins/images/12390/thumb/ACH_%281%29.png?1696512213"
     },
     {
+        "chainId": 11155111,
+        "address": "0xA723EFB4419e11d3879F09F888188269e49D3c53",
+        "name": "BOB",
+        "symbol": "BOB",
+        "decimals": 18,
+        "logoURI": "https://assets.coingecko.com/coins/images/12390/thumb/ACH_%281%29.png?1696512213"
+    },
+    {
         "chainId": 1,
         "address": "0x6dc6a27822ae2ca3a47da39a2f2bbd525dd693f8",
         "name": "Cyberdoge",

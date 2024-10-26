@@ -2,10 +2,12 @@ import { parseEther, parseUnits } from "viem";
 import { NATIVE_TOKEN_ADDRESS } from "./constants";
 import { buildTransferERC20, buildTransferNative, ETHAddress, getTokenDetailsByContract } from "./utils";
 import { triggerSwapRoute } from "./enso";
+import { constructBridgeTransaction } from "./bridgeEthPolygon";
 
 enum IntentType {
     SEND = "send",
-    SWAP = "swap"
+    SWAP = "swap",
+    BRIDGE = "bridge"
 }
 
 interface Token {
@@ -13,8 +15,9 @@ interface Token {
     address: string;
 }
 
-interface NetworkInfo {
+interface Chain {
     chain_id: number;
+    name?: string
 }
 
 interface TxParams {
@@ -31,7 +34,7 @@ abstract class IntentBase {
         this.summary = summary;
     }
 
-    abstract buildTransaction(network: NetworkInfo, smartWalletAddress: string): any;
+    abstract buildTransaction(network: Chain, smartWalletAddress: string): any;
 }
 
 class SendIntent extends IntentBase {
@@ -50,7 +53,7 @@ class SendIntent extends IntentBase {
         return new SendIntent(token, amount, receiver);
     }
 
-    async buildTransaction(network: NetworkInfo, smartWalletAddress: string) {
+    async buildTransaction(network: Chain, smartWalletAddress: string) {
         let tx: TxParams;
 
         const receiverAddress = new ETHAddress(this.receiver)
@@ -86,21 +89,54 @@ class SwapIntent extends IntentBase {
         return new SwapIntent(fromToken, toToken, amount);
     }
 
-    async buildTransaction(network: NetworkInfo, fromAddress: string) {
+    async buildTransaction(network: Chain, fromAddress: string) {
         const token = getTokenDetailsByContract(this.fromToken.address)
 
         const decimal = token?.decimals || 18
 
         const amount = parseUnits(this.amount.toString(), decimal)
 
-        const req = await triggerSwapRoute({ fromAddress: fromAddress, chainId: network.chain_id, tokenIn: this.fromToken.address, tokenOut: this.toToken.address, amountIn: amount.toString()})
+        const req = await triggerSwapRoute({ fromAddress: fromAddress, chainId: network.chain_id, tokenIn: this.fromToken.address, tokenOut: this.toToken.address, amountIn: amount.toString() })
         return req
 
     }
 }
 
 
-type Intent = SendIntent | SwapIntent
+class BridgeIntent extends IntentBase {
+    fromChain: Chain;
+    toChain: Chain;
+    token: Token;
+    amount: number;
+
+    private constructor(fromChain: Chain, toChain: Chain, token: Token, amount: number) {
+        super(IntentType.BRIDGE, `Bridge amount worth of ${amount} ${token.symbol} from ${fromChain.name} to  ${toChain.name}`);
+        this.fromChain =fromChain;
+        this.toChain =toChain
+        this.amount = amount;
+        this.token = token;
+
+    }
+
+    static create(fromChain: Chain, toChain: Chain, token: Token, amount: number): BridgeIntent {
+        return new BridgeIntent(fromChain, toChain, token, amount);
+    }
+
+    async buildTransaction(network: Chain, fromAddress: string) {
+        const token = getTokenDetailsByContract(this.token.address)
+
+        const decimal = token?.decimals || 18
+
+        const amount = parseUnits(this.amount.toString(), decimal)
+
+        const req = await constructBridgeTransaction(fromAddress,this.token.address, amount)
+        return req
+
+    }
+}
+
+
+type Intent = SendIntent | SwapIntent | BridgeIntent
 
 export function loadIntent(intentData: Record<string, any>): Intent {
     switch (intentData.type) {
@@ -122,6 +158,22 @@ export function loadIntent(intentData: Record<string, any>): Intent {
                 {
                     symbol: intentData.tokenOut.symbol,
                     address: intentData.tokenOut.address,
+                },
+                intentData.amount
+            );
+        case IntentType.BRIDGE:
+            return BridgeIntent.create(
+                {
+                    chain_id: intentData.fromChain.chain_id,
+                    name: intentData.fromChain.name,
+                },
+                {
+                    chain_id: intentData.toChain.chain_id,
+                    name: intentData.toChain.name,
+                },
+                {
+                    symbol: intentData.token.symbol,
+                    address: intentData.token.address,
                 },
                 intentData.amount
             );

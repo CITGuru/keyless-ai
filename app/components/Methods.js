@@ -109,11 +109,6 @@ export default function DynamicMethods({ isDarkMode }) {
         }
     };
 
-    const handleButtonClick = (action) => {
-        // Handle button clicks here
-        console.log(`Button clicked with action: ${action}`);
-    };
-
     const handleViewTransaction = (txData) => {
         setTransactionDetails(txData);
         setIsTransactionDetailsOpen(true);
@@ -142,14 +137,6 @@ export default function DynamicMethods({ isDarkMode }) {
         setResult('');
     }
 
-    function showUser() {
-        setResult(safeStringify(user));
-    }
-
-    function showUserWallets() {
-        setResult(safeStringify(userWallets));
-    }
-
 
     async function fetchPublicClient() {
         if (!primaryWallet || !isEthereumWallet(primaryWallet)) return;
@@ -165,23 +152,7 @@ export default function DynamicMethods({ isDarkMode }) {
         setResult(safeStringify(walletClient));
     }
 
-    async function signMessage() {
-        if (!primaryWallet || !isEthereumWallet(primaryWallet)) return;
 
-        const signature = await primaryWallet.signMessage("Hello World");
-
-        setResult(signature);
-    }
-
-
-    async function signTransaction() {
-        if (!primaryWallet || !isEthereumWallet(primaryWallet)) return;
-
-        const wallet = await primaryWallet.getWalletClient();
-        wallet.sendTransaction({to: "0xd8da6bf26964af9d7eed9e03e53415d37aa96045", value: "10000"})
-
-        // setResult(signature);
-    }
 
 
     const callBatchingEndpoint = async () => {
@@ -231,11 +202,7 @@ export default function DynamicMethods({ isDarkMode }) {
                 <div className="dynamic-methods" data-theme={isDarkMode ? 'dark' : 'light'}>
                     <div className="methods-container">
 
-                    {/* <button className="btn btn-primary" onClick={signTransaction}>Sign Transaction</button> */}
-                        {/* <button className="btn btn-primary" onClick={showUser}>Fetch User</button>
-                        <button className="btn btn-primary" onClick={showUserWallets}>Fetch User Wallets</button> */}
-
-
+                
                         {isEthereumWallet(primaryWallet) &&
                             <div>
                                 <div className="container mx-auto p-4">
@@ -261,10 +228,7 @@ export default function DynamicMethods({ isDarkMode }) {
                             
                             </div>  
                         }
-                        {/* <button className="btn btn-primary" onClick={fetchPublicClient}>Fetch Public Client</button>
-                        <button className="btn btn-primary" onClick={fetchWalletClient}>Fetch Wallet Client</button>
-                        <button className="btn btn-primary" onClick={signMessage}>Sign 'Hello World' on Ethereum</button> */}
-
+                   
                     </div>
                     {result && (
                         <div className="results-container">
@@ -281,22 +245,6 @@ export default function DynamicMethods({ isDarkMode }) {
         </>
     );
 }
-// interface TransactionDetails {
-//   transactionId?: string;
-//   amount?: string;
-//   account?: string;
-//   chain?: string;
-//   action?: string;
-//   tokenIn?: string;
-//   tokenOut?: string;
-//   [key: string]: any; // Allow for additional properties
-// }
-
-// interface TransactionDetailsPopupProps {
-//   isOpen: boolean;
-//   onClose: () => void;
-//   details: TransactionDetails;
-// }
 
 export function TransactionDetailsPopup({ isOpen, onClose, details }) {
   return (
@@ -319,5 +267,4 @@ export function TransactionDetailsPopup({ isOpen, onClose, details }) {
     </Dialog>
   );
 }
-
 

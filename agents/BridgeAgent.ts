@@ -1,5 +1,5 @@
 import { Swarm, Agent, AgentFunction } from "@pluralityai/agents";
-import { SwapTokenAgent } from "./index";
+import { transferToSendAgent, transferToSwapAgent } from "./agentFunctions";
 
 const prepareBridgeTransaction: AgentFunction = {
     name: "prepareBridgeTransaction",
@@ -8,7 +8,7 @@ const prepareBridgeTransaction: AgentFunction = {
     },
     descriptor: {
         name: "prepareBridgeTransaction",
-        description: "Triggers a bridge from one chain to another",
+        description: "Triggers a bridge transaction from one chain to another",
         parameters: {
             amount: {
                 type: "number",
@@ -36,6 +36,7 @@ const prepareBridgeTransaction: AgentFunction = {
 };
 
 
+
 // Create a Bridge Token Agent
 export const BridgeTokenAgent = new Agent({
     name: "bridgeTokenAgent",
@@ -58,7 +59,10 @@ export const BridgeTokenAgent = new Agent({
         "toChain": "zkEvm",
         "token": "BOB",
     }}
+
+    Note: if you see swap/buy/sell, use the transferToSwapAgent function
+    Note: if you see send/transfer, use the transferToSendAgent function
     `,
     model: "gpt-4o-mini",
-    functions: [prepareBridgeTransaction],
+    functions: [prepareBridgeTransaction, transferToSendAgent, transferToSwapAgent],
 });
