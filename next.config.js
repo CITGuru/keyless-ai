@@ -10,4 +10,7 @@ module.exports = {
       }
       return config;
     },
+    env: {
+      DYNAMIC_API_KEY: process.env.DYNAMIC_API_KEY
+    },
   };
