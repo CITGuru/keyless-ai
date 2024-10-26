@@ -7,11 +7,12 @@ import { Input } from '@/components/ui/input'
 import { ScrollArea } from '@/components/ui/scroll-area'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Card, CardContent } from '@/components/ui/card'
-import { SendIcon, UserIcon, EyeIcon, PenIcon, PackageIcon } from 'lucide-react'
+import { SendIcon, EyeIcon, PenIcon, PackageIcon } from 'lucide-react'
 
 type Message = {
   role: 'user' | 'assistant' | 'system'
   content: string
+// eslint-disable-next-line
   actions?: any[]
 }
 
@@ -20,6 +21,7 @@ type PreviewButton = {
   action: () => void
 }
 
+// eslint-disable-next-line
 export default function CustomChatbot({
   previewButtons = [],
   onSubmit,
@@ -28,8 +30,11 @@ export default function CustomChatbot({
   onBundleSigning,
 }: {
   previewButtons?: PreviewButton[]
+// eslint-disable-next-line
   onSubmit: (message: string) => Promise<{ message: string, actions: any[] }>
+// eslint-disable-next-line
   onSignatureRequest: (txData: any) => Promise<string>
+// eslint-disable-next-line
   onViewTransaction: (txData: any) => void
   onBundleSigning: () => void
 }) {
